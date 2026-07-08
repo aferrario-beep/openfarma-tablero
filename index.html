@@ -971,10 +971,12 @@ function renderSvAlertas(svKey){
 }
 
 function renderSvEncargados(svKey){
+  const el = document.getElementById('sv-encargados');
+  if(!el) return;
   const vv = svVisitas(svKey);
-  document.getElementById('sv-encargados').innerHTML = vv.length
+  el.innerHTML = vv.length
     ? vv.slice(0,10).map(v=>{
-        const presente = v.admin&&v.admin.encargado_presente ? v.admin.encargado_presente : (v.encargado_presente||null);
+        const presente = v.encargado_presente||null;
         const nombre   = v.encargado||'—';
         const bClass   = presente==='Si'?'badge-ok':presente==='No'?'badge-bad':'badge-na';
         const bLabel   = presente==='Si'?'Presente':presente==='No'?'Ausente':'Sin dato';
