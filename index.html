@@ -1992,16 +1992,17 @@ async function syncFromSheets(){
     const text = await res.text();
     const json = JSON.parse(text.replace(/^[^(]+\(/, '').replace(/\);?$/, ''));
     const rows = json.table.rows || [];
-    const nuevas = rows.map(parseSheetsRow).filter(Boolean);
+    const todas = rows.map(parseSheetsRow).filter(Boolean);
     // Also load pendientes
     loadAllPendientes();
 
-    // merge: sheets rows override matching localStorage rows
-    nuevas.forEach(n=>{
-      const idx = visitas.findIndex(v=>v.sv===n.sv&&v.sucursal===n.sucursal&&v.fecha===n.fecha);
-      if(idx>=0) visitas[idx]=n; else visitas.push(n);
-    });
-    saveVisitas();
+    // Replace ALL data with what comes from Sheets — no merging with stale localStorage
+    if(todas.length > 0){
+      // Remove demo/old data, keep only Sheets data
+      visitas.length = 0;
+      todas.forEach(n => visitas.push(n));
+      saveVisitas();
+    }
 
     const page = document.querySelector('.page.show');
     if(page&&page.id==='page-supervisor'&&currentSv) renderSvPage(currentSv);
