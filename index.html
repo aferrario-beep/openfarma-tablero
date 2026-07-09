@@ -250,7 +250,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   @page{margin:15mm;size:A4 landscape}
 }
 
-/* ── PANEL LATERAL ──────────────────────────────────────────── */
+/* ── MODO PRESENTACIÓN ──────────────────────────────────────── */
+.modo-presentacion .sidebar,
+.modo-presentacion .topbar,
+.modo-presentacion .panel-overlay,
+.modo-presentacion .panel-lateral{ display:none!important }
+.modo-presentacion .main{ margin-left:0!important }
+.modo-presentacion .content{ padding:16px 20px }
+.modo-presentacion .hero-val{ font-size:52px!important }
+.modo-presentacion .hero-card{ padding:24px 28px!important }
+.modo-presentacion .sv-score{ font-size:42px!important }
+.modo-presentacion body{ background:#F0F2F5 }
+.pres-exit{ position:fixed;bottom:20px;right:20px;z-index:999;padding:10px 20px;background:#6B46C1;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:none }
+.modo-presentacion .pres-exit{ display:block }
+
+/* ── COMENTARIOS PENDIENTES ──────────────────────────────────── */
+.comment-input{ width:100%;padding:7px 10px;border:1.5px solid var(--borde);border-radius:var(--radius-sm);font-size:12px;margin-top:6px;resize:none;min-height:52px;font-family:inherit }
+.comment-input:focus{ outline:none;border-color:var(--verde) }
+.btn-comment{ padding:5px 12px;border-radius:var(--radius-sm);border:none;background:var(--azul);color:#fff;font-size:11px;font-weight:600;cursor:pointer;margin-top:4px }
+.comment-item{ font-size:11px;color:var(--texto2);background:#EBF8FF;border-left:3px solid var(--azul);padding:6px 10px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin-top:6px }
+.comment-meta{ font-size:10px;color:var(--texto3);margin-top:2px }
 .panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:300;display:none;opacity:0;transition:opacity .2s}
 .panel-overlay.show{display:block;opacity:1}
 .panel-lateral{position:fixed;top:0;right:-480px;width:460px;max-width:95vw;height:100vh;background:var(--blanco);box-shadow:-4px 0 24px rgba(0,0,0,.12);z-index:301;display:flex;flex-direction:column;transition:right .25s ease;overflow:hidden}
@@ -375,6 +394,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <button class="btn-sync" id="btn-sync" onclick="syncFromSheets()">↻ Sincronizar</button>
     <button class="btn-checklist" onclick="openImport()">+ Cargar checklist</button>
     <button class="btn-checklist" onclick="exportPDF()" style="background:#4A5568">⬇ Exportar</button>
+    <button class="btn-checklist" onclick="togglePresentacion()" id="btn-presentacion" style="background:#6B46C1">⛶ Presentación</button>
   </div>
 
   <div class="content">
@@ -519,6 +539,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         </div>
       </div>
 
+      <!-- SEMÁFORO DE PRIORIDADES -->
+      <div class="card" style="margin-top:14px">
+        <div class="card-header">
+          <div>
+            <div class="card-title">🚦 Prioridad de visitas</div>
+            <div class="card-subtitle">Sucursales ordenadas por urgencia — basado en días sin visitar, puntaje y pendientes</div>
+          </div>
+        </div>
+        <div id="sv-semaforo"></div>
+      </div>
+
       <!-- PENDIENTES GESTIÓN -->
       <div class="two-col" style="margin-top:14px">
         <div class="card" style="margin-bottom:0">
@@ -552,6 +583,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div>
 
 <!-- PANEL LATERAL DETALLE SUCURSAL -->
+<button class="pres-exit" onclick="togglePresentacion()">✕ Salir presentación</button>
 <div class="panel-overlay" id="panel-overlay" onclick="closePanel()"></div>
 <div class="panel-lateral" id="panel-lateral">
   <div class="panel-header">
@@ -1280,19 +1312,27 @@ function renderSvPage(svKey){
     }).filter(Boolean).join('')||'<div class="empty">Sin datos</div>';
   }
 
-  // Pendientes abiertos
+  // Pendientes abiertos con comentarios
   const svPend=allPendientes.filter(p=>p.sv===svKey&&p.estado!=='Resuelto');
-  document.getElementById('sv-pend-abiertos').innerHTML=svPend.length?svPend.map(p=>`
-    <div class="pend-item abierto">
+  document.getElementById('sv-pend-abiertos').innerHTML=svPend.length?svPend.map(p=>{
+    const coms = comentarios[p.id] || [];
+    return `<div class="pend-item abierto">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
-        <div>
+        <div style="flex:1">
           <div class="pend-item-area">${p.area}</div>
           <div class="pend-item-txt">${p.texto}</div>
           <div class="pend-item-meta">${p.sucursal} · ${fmtDate(p.fecha_visita)}</div>
+          ${coms.map(c=>`<div class="comment-item">${c.texto}<div class="comment-meta">${c.autor} · ${c.fecha}</div></div>`).join('')}
+          <textarea class="comment-input" id="comment-${p.id}" placeholder="Agregar comentario..."></textarea>
+          <button class="btn-comment" onclick="agregarComentario('${p.id}','${svKey}')">+ Comentario</button>
         </div>
         <button class="btn-resolver" onclick="marcarResuelto('${p.id}','${svKey}')">✓ Resolver</button>
       </div>
-    </div>`).join(''):'<div class="empty">Sin pendientes abiertos 🎉</div>';
+    </div>`;
+  }).join(''):'<div class="empty">Sin pendientes abiertos 🎉</div>';
+
+  // Semáforo de prioridades
+  renderSvSemaforo(svKey);
 
   // Timeline
   document.getElementById('sv-timeline').innerHTML=vvAll.slice(0,8).map(v=>{
@@ -1385,6 +1425,84 @@ function exportPDF(){
   document.title = prevTitle;
 }
 
+
+
+// ── MODO PRESENTACIÓN ─────────────────────────────────────
+let enPresentacion = false;
+function togglePresentacion(){
+  enPresentacion = !enPresentacion;
+  document.body.classList.toggle('modo-presentacion', enPresentacion);
+  if(enPresentacion){
+    document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+    document.getElementById('btn-presentacion').textContent = '✕ Salir';
+  } else {
+    document.exitFullscreen && document.exitFullscreen();
+    document.getElementById('btn-presentacion').textContent = '⛶ Presentación';
+  }
+}
+document.addEventListener('keydown', function(e){ if(e.key==='Escape' && enPresentacion) togglePresentacion(); });
+
+// ── SEMÁFORO DE PRIORIDADES ───────────────────────────────
+function renderSvSemaforo(svKey){
+  const el = document.getElementById('sv-semaforo');
+  if(!el) return;
+  const hoy = new Date();
+  const prioridades = SUCURSALES[svKey].map(suc=>{
+    const vvSuc = visitas.filter(v=>v.sucursal===suc).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+    const last = vvSuc.length ? vvSuc[0] : null;
+    const sc = last ? visitaAvg(last) : null;
+    const dias = last ? Math.floor((hoy - new Date(last.fecha)) / 86400000) : 999;
+    const pends = last ? last.pendientes.filter(p=>{
+      const txt = typeof p==='string'?p:p.texto||'';
+      const ci = txt.indexOf(': ');
+      const texto = ci>0?txt.substring(ci+2).trim():txt.trim();
+      return texto && texto.toLowerCase()!=='no' && texto.length>=3;
+    }).length : 0;
+    const pDias  = Math.min(40, Math.round(dias / 30 * 40));
+    const pScore = sc !== null ? Math.max(0, Math.round((100 - sc) / 100 * 30)) : 30;
+    const pPend  = Math.min(30, pends * 10);
+    const priority = pDias + pScore + pPend;
+    const icon = dias > 14 || sc === null ? '🔴' : dias > 7 || (sc !== null && sc < META) ? '🟡' : '🟢';
+    return { suc, sc, dias, pends, priority, icon, last };
+  }).sort((a,b) => b.priority - a.priority);
+
+  el.innerHTML = prioridades.map((p,i) => {
+    const urgencia = p.priority >= 50 ? 'URGENTE' : p.priority >= 25 ? 'Pronto' : 'OK';
+    const urgColor = p.priority >= 50 ? 'var(--rojo)' : p.priority >= 25 ? 'var(--ambar)' : 'var(--verde)';
+    const diasStr = p.dias === 999 ? 'Sin visitar nunca' : p.dias === 0 ? 'Hoy' : p.dias === 1 ? 'Ayer' : 'Hace '+p.dias+'d';
+    return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #F7FAFC">'
+      +'<div style="font-size:16px;flex-shrink:0">'+p.icon+'</div>'
+      +'<div style="flex:1;min-width:0">'
+        +'<div style="font-size:12px;font-weight:600;color:var(--texto);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+p.suc+'</div>'
+        +'<div style="font-size:10px;color:var(--texto3);margin-top:1px">'+diasStr+(p.pends>0?' · '+p.pends+' pendiente'+(p.pends!==1?'s':''):'')+( p.sc!==null?' · '+p.sc+'%':' · Sin dato')+'</div>'
+      +'</div>'
+      +'<div style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px;background:'+urgColor+'22;color:'+urgColor+';flex-shrink:0">'+urgencia+'</div>'
+    +'</div>';
+  }).join('');
+}
+
+// ── COMENTARIOS EN PENDIENTES ─────────────────────────────
+let comentarios = {};
+try { comentarios = JSON.parse(localStorage.getItem('of_comentarios')||'{}'); } catch(e){}
+
+function saveComentario(pendId, texto){
+  if(!texto.trim()) return;
+  if(!comentarios[pendId]) comentarios[pendId] = [];
+  comentarios[pendId].push({
+    texto: texto.trim(),
+    autor: currentUser ? currentUser.nombre : 'Gerencia',
+    fecha: new Date().toLocaleDateString('es-AR')
+  });
+  try { localStorage.setItem('of_comentarios', JSON.stringify(comentarios)); } catch(e){}
+}
+
+function agregarComentario(pendId, svKey){
+  const input = document.getElementById('comment-'+pendId);
+  if(!input || !input.value.trim()) return;
+  saveComentario(pendId, input.value);
+  input.value = '';
+  renderSvPendientesGestion(svKey);
+}
 
 document.getElementById('topbar-date').textContent=new Date().toLocaleDateString('es-AR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 const savedSession=loadSession();
