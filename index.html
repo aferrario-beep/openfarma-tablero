@@ -8,7 +8,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --verde:#2D7A4F;--verde-mid:#3DAA6A;--verde-light:#E8F5EE;--verde-dark:#1A5C38;
+  --verde:#5A8520;--verde-mid:#8DC63F;--verde-light:#F2F8E8;--verde-dark:#5A8520;
   --gris-bg:#F0F2F5;--blanco:#FFFFFF;--borde:#E2E8F0;
   --texto:#1A2332;--texto2:#4A5568;--texto3:#718096;
   --rojo:#C53030;--rojo-light:#FFF5F5;--rojo-mid:#E53E3E;
@@ -22,18 +22,18 @@
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--gris-bg);color:var(--texto);font-size:13px;min-height:100vh}
 
 /* ── LOGIN ────────────────────────────────────────────────── */
-.login-overlay{position:fixed;inset:0;background:#8DC63F;z-index:1000;display:flex;align-items:center;justify-content:center}
+.login-overlay{position:fixed;inset:0;background:var(--verde-mid);z-index:1000;display:flex;align-items:center;justify-content:center}
 .login-overlay.hide{display:none}
 .login-box{background:var(--blanco);border-radius:16px;padding:36px 40px;width:380px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
 .login-brand{display:flex;flex-direction:column;align-items:center;margin-bottom:28px;text-align:center}
-.login-logo-mark{width:64px;height:64px;background:#fff;border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;box-shadow:0 4px 14px rgba(45,122,79,.3);padding:4px}
+.login-logo-mark{width:64px;height:64px;background:#fff;border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;box-shadow:0 4px 14px rgba(90,133,32,.2);padding:4px}
 .login-brand-name{font-size:22px;font-weight:800;color:var(--verde-dark);letter-spacing:-.3px}
 .login-brand-sub{font-size:12px;color:var(--texto3);margin-top:2px}
 .login-divider{width:40px;height:3px;background:var(--verde-mid);border-radius:2px;margin:14px auto 20px}
 .login-field{margin-bottom:14px}
 .login-field label{display:block;font-size:11px;font-weight:700;color:var(--texto2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
 .login-field input{width:100%;padding:11px 14px;border:1.5px solid var(--borde);border-radius:var(--radius-sm);font-size:13px;outline:none;transition:border .15s;color:var(--texto)}
-.login-field input:focus{border-color:var(--verde);box-shadow:0 0 0 3px rgba(61,170,106,.15)}
+.login-field input:focus{border-color:var(--verde);box-shadow:0 0 0 3px rgba(141,198,63,.2)}
 .login-btn{width:100%;padding:13px;background:var(--verde);color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:700;cursor:pointer;margin-top:6px;transition:background .15s;letter-spacing:.02em}
 .login-btn:hover{background:var(--verde-dark)}
 .login-err{font-size:12px;color:var(--rojo);margin-top:10px;display:none;text-align:center}
@@ -44,7 +44,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .shell{display:flex;min-height:100vh}
 
 /* ── SIDEBAR ───────────────────────────────────────────────── */
-.sidebar{width:220px;background:var(--verde-dark);display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;height:100vh;z-index:100;overflow-y:auto}
+.sidebar{width:220px;background:var(--verde);display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;height:100vh;z-index:100;overflow-y:auto}
 .sb-brand{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,.1)}
 .sb-logomark{width:36px;height:36px;background:var(--verde-mid);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:15px;flex-shrink:0}
 .sb-brand-inner{display:flex;align-items:center;gap:10px}
@@ -55,7 +55,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .sb-item:hover{background:rgba(255,255,255,.07);color:#fff}
 .sb-item.active{background:rgba(255,255,255,.12);color:#fff;border-left-color:var(--verde-mid);font-weight:600}
 .sb-item .sb-pct{margin-left:auto;font-size:10px;font-weight:600;padding:2px 6px;border-radius:10px}
-.sb-item .sb-pct.ok{background:rgba(61,170,106,.25);color:#7DDBAB}
+.sb-item .sb-pct.ok{background:rgba(141,198,63,.25);color:#7DDBAB}
 .sb-item .sb-pct.warn{background:rgba(217,119,6,.25);color:#FBD38D}
 .sb-item .sb-pct.bad{background:rgba(229,62,62,.25);color:#FEB2B2}
 .sb-item .sb-pct.na{background:rgba(255,255,255,.1);color:rgba(255,255,255,.4)}
@@ -115,7 +115,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 /* ── SUPERVISOR CARDS ──────────────────────────────────────── */
 .sv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .sv-card{background:var(--gris-bg);border-radius:var(--radius-sm);padding:14px 16px;border:1.5px solid var(--borde);cursor:pointer;transition:all .15s}
-.sv-card:hover{border-color:var(--verde);box-shadow:0 0 0 3px rgba(61,170,106,.1)}
+.sv-card:hover{border-color:var(--verde);box-shadow:0 0 0 3px rgba(141,198,63,.15)}
 .sv-card.alerta{border-color:#FEB2B2;background:var(--rojo-light)}
 .sv-name{font-size:13px;font-weight:700;color:var(--texto);margin-bottom:2px}
 .sv-meta{font-size:10px;color:var(--texto3);margin-bottom:10px}
@@ -788,7 +788,7 @@ function renderGerEvol(vf){
   if(evolChart) evolChart.destroy();
   const sorted=[...visitas].sort((a,b)=>a.fecha.localeCompare(b.fecha));
   const allDates=[...new Set(sorted.map(v=>v.fecha))].sort();
-  const COLORS={AT:'#3DAA6A',SC:'#3182CE',GG:'#D97706',JB:'#E53E3E'};
+  const COLORS={AT:'#8DC63F',SC:'#3182CE',GG:'#D97706',JB:'#E53E3E'};
   const datasets=Object.keys(SV_NAMES).map(k=>{
     const data=allDates.map(d=>{
       const vv=sorted.filter(v=>v.sv===k&&v.fecha===d);
@@ -938,7 +938,7 @@ function renderSvPage(svKey){
   if(ctx2){
     svEvolChart=new Chart(ctx2,{type:'bar',data:{
       labels:sorted2.map(v=>v.sucursal.replace('Openfarma ','').replace('Open ','')+' '+fmtDate(v.fecha)),
-      datasets:[{label:'Cumplimiento',data:sorted2.map(visitaAvg),backgroundColor:sorted2.map(v=>{ const s=visitaAvg(v); return s===null?'#E2E8F0':s>=META?'#3DAA6A':s>=(META-10)?'#D97706':'#E53E3E'; }),borderRadius:4}]
+      datasets:[{label:'Cumplimiento',data:sorted2.map(visitaAvg),backgroundColor:sorted2.map(v=>{ const s=visitaAvg(v); return s===null?'#E2E8F0':s>=META?'#8DC63F':s>=(META-10)?'#D97706':'#E53E3E'; }),borderRadius:4}]
     },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%',stepSize:20}},x:{ticks:{font:{size:9},maxRotation:60}}}}});
   }
 
