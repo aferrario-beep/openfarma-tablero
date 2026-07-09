@@ -844,7 +844,9 @@ function renderGerPendientes(vf){
       const txt=typeof p==='string'?p:p.texto||'';
       const ci=txt.indexOf(': ');
       const area=ci>0?txt.substring(0,ci).trim():'General';
-      areas[area]=(areas[area]||0)+1;
+      const texto=ci>0?txt.substring(ci+2).trim():txt.trim();
+      const isInvalid=!texto||texto.toLowerCase()==='no'||texto.toLowerCase()==='no hay'||texto.toLowerCase()==='ninguno'||texto.toLowerCase()==='n/a'||texto.length<3;
+      if(!isInvalid) areas[area]=(areas[area]||0)+1;
     });
   });
   const sorted=Object.entries(areas).sort((a,b)=>b[1]-a[1]);
@@ -898,7 +900,8 @@ function renderGerPendDetalle(){
       const ci = txt.indexOf(': ');
       const area = ci>0?txt.substring(0,ci).trim():'General';
       const texto = ci>0?txt.substring(ci+2).trim():txt;
-      if(texto) allPend.push({area, texto, sucursal:v.sucursal, sv:v.sv, supervisor:SV_NAMES[v.sv], fecha:v.fecha});
+      const isInvalid = !texto || texto.trim()==='' || texto.trim().toLowerCase()==='no' || texto.trim().toLowerCase()==='no hay' || texto.trim().toLowerCase()==='ninguno' || texto.trim().toLowerCase()==='n/a' || texto.trim().length < 3;
+      if(!isInvalid) allPend.push({area, texto, sucursal:v.sucursal, sv:v.sv, supervisor:SV_NAMES[v.sv], fecha:v.fecha});
     });
   });
   const filtered = pendTabFilter==='todos'?allPend:allPend.filter(p=>p.sv===pendTabFilter);
