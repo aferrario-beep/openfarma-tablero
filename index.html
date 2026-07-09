@@ -764,7 +764,9 @@ function toggleCard(bodyId, header){
 
 // ── FILTRO GLOBAL POR SUCURSAL ─────────────────────────
 let filtroSucursal = '';
-let filtroPeriodo = ''; // 'YYYY-MM' or ''
+// Default: current month
+const _hoy = new Date();
+let filtroPeriodo = _hoy.getFullYear() + '-' + String(_hoy.getMonth()+1).padStart(2,'0');''
 
 function populateFiltroPeriodo(){
   const sel = document.getElementById('filtro-periodo');
