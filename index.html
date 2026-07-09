@@ -44,7 +44,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .shell{display:flex;min-height:100vh}
 
 /* ── SIDEBAR ───────────────────────────────────────────────── */
-.sidebar{width:220px;background:var(--verde);display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;height:100vh;z-index:100;overflow-y:auto}
+.sidebar{width:220px;background:#3D6B10;display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;height:100vh;z-index:100;overflow-y:auto}
 .sb-brand{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,.1)}
 .sb-logomark{width:36px;height:36px;background:var(--verde-mid);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:15px;flex-shrink:0}
 .sb-brand-inner{display:flex;align-items:center;gap:10px}
@@ -75,8 +75,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .topbar-date{font-size:11px;color:var(--texto3);white-space:nowrap}
 .periodo-select{padding:7px 12px;border-radius:var(--radius-sm);border:1.5px solid var(--borde);font-size:12px;color:var(--texto);background:var(--blanco);cursor:pointer;outline:none}
 .periodo-select:focus{border-color:var(--verde)}
-.btn-sync{padding:7px 16px;border-radius:var(--radius-sm);border:none;background:var(--azul);color:#fff;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap}
-.btn-sync:hover{background:#2562a0}
+.btn-sync{padding:7px 16px;border-radius:var(--radius-sm);border:none;background:var(--verde-mid);color:#fff;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.btn-sync:hover{background:#8DC63F;opacity:.85}
 .btn-checklist{padding:7px 16px;border-radius:var(--radius-sm);border:none;background:var(--verde);color:#fff;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
 .btn-checklist:hover{background:var(--verde-dark)}
 
@@ -86,12 +86,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
 /* ── HERO METRICS ──────────────────────────────────────────── */
 .hero-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
-.hero-card{background:var(--blanco);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);border-top:4px solid var(--borde);position:relative}
-.hero-card.verde{border-top-color:var(--verde-mid)}
-.hero-card.azul{border-top-color:var(--azul)}
-.hero-card.ambar{border-top-color:var(--ambar-mid)}
-.hero-card.rojo{border-top-color:var(--rojo-mid)}
-.hero-label{font-size:10px;font-weight:700;color:var(--texto3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.hero-card{background:var(--blanco);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);border:1px solid var(--borde);position:relative}
+.hero-card.verde{border-left:4px solid var(--verde-mid)}
+.hero-card.azul{border-left:4px solid var(--azul)}
+.hero-card.ambar{border-left:4px solid var(--ambar-mid)}
+.hero-card.rojo{border-left:4px solid var(--rojo-mid)}
+.hero-label{font-size:11px;font-weight:600;color:var(--texto3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
 .hero-val{font-size:36px;font-weight:800;line-height:1;color:var(--texto)}
 .hero-card.verde .hero-val{color:var(--verde)}
 .hero-card.azul .hero-val{color:var(--azul)}
@@ -367,6 +367,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
             <div class="card-subtitle" id="ger-pend-sub"></div>
           </div>
           <div id="ger-pendientes"></div>
+        </div>
+      </div>
+
+      <!-- PENDIENTES DETALLE -->
+      <div class="card" style="margin-top:14px">
+        <div class="card-header">
+          <div class="card-title">Detalle de pendientes abiertos</div>
+          <div class="card-subtitle" id="ger-pend-detalle-sub"></div>
+        </div>
+        <div class="tab-bar">
+          <button class="tab-btn active" onclick="switchPendTab('todos',this)">Todos</button>
+          <button class="tab-btn" onclick="switchPendTab('AT',this)">A. Tessio</button>
+          <button class="tab-btn" onclick="switchPendTab('SC',this)">S. Cobreros</button>
+          <button class="tab-btn" onclick="switchPendTab('GG',this)">G. Giles</button>
+          <button class="tab-btn" onclick="switchPendTab('JB',this)">J. Botta</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:12px">
+            <thead><tr style="border-bottom:2px solid var(--borde)">
+              <th style="text-align:left;padding:8px 10px;color:var(--texto3);font-weight:600;font-size:11px;text-transform:uppercase">Área</th>
+              <th style="text-align:left;padding:8px 10px;color:var(--texto3);font-weight:600;font-size:11px;text-transform:uppercase">Pendiente</th>
+              <th style="text-align:left;padding:8px 10px;color:var(--texto3);font-weight:600;font-size:11px;text-transform:uppercase">Sucursal</th>
+              <th style="text-align:left;padding:8px 10px;color:var(--texto3);font-weight:600;font-size:11px;text-transform:uppercase">Supervisor</th>
+              <th style="text-align:left;padding:8px 10px;color:var(--texto3);font-weight:600;font-size:11px;text-transform:uppercase">Fecha</th>
+            </tr></thead>
+            <tbody id="ger-pend-tbody"></tbody>
+          </table>
         </div>
       </div>
 
@@ -650,6 +677,7 @@ function renderGerencial(){
   renderGerRanking(vf);
   renderGerEvol(vf);
   renderGerPendientes(vf);
+  renderGerPendDetalle();
   renderGerCobertura(vf);
 }
 
@@ -851,6 +879,42 @@ function renderGerCobertura(vf){
       <div class="cob-fecha">${fmtDate(last.fecha)} · ${diasDesde(last.fecha)}</div>
     </div>`;
   }).join('');
+}
+
+let pendTabFilter = 'todos';
+function switchPendTab(svKey, btn){
+  pendTabFilter = svKey;
+  document.querySelectorAll('.tab-bar .tab-btn').forEach(b=>{ if(b.onclick&&b.onclick.toString().includes('switchPendTab')) b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderGerPendDetalle();
+}
+
+function renderGerPendDetalle(){
+  const vf = visitasFiltradas(visitas);
+  const allPend = [];
+  vf.forEach(v=>{
+    v.pendientes.forEach(p=>{
+      const txt = typeof p==='string'?p:p.texto||'';
+      const ci = txt.indexOf(': ');
+      const area = ci>0?txt.substring(0,ci).trim():'General';
+      const texto = ci>0?txt.substring(ci+2).trim():txt;
+      if(texto) allPend.push({area, texto, sucursal:v.sucursal, sv:v.sv, supervisor:SV_NAMES[v.sv], fecha:v.fecha});
+    });
+  });
+  const filtered = pendTabFilter==='todos'?allPend:allPend.filter(p=>p.sv===pendTabFilter);
+  const tbody = document.getElementById('ger-pend-tbody');
+  const sub = document.getElementById('ger-pend-detalle-sub');
+  if(!tbody) return;
+  if(sub) sub.textContent = `${filtered.length} pendiente${filtered.length!==1?'s':''} abiertos`;
+  if(!filtered.length){ tbody.innerHTML=`<tr><td colspan="5" style="padding:16px;text-align:center;color:var(--texto3);font-size:12px">Sin pendientes registrados 🎉</td></tr>`; return; }
+  tbody.innerHTML = filtered.map((p,i)=>`
+    <tr style="border-bottom:1px solid #F7FAFC;${i%2===0?'':'background:#FAFAFA'}">
+      <td style="padding:8px 10px"><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:var(--ambar-light);color:var(--ambar)">${p.area}</span></td>
+      <td style="padding:8px 10px;color:var(--texto);max-width:300px">${p.texto}</td>
+      <td style="padding:8px 10px;color:var(--texto2);font-size:11px">${p.sucursal}</td>
+      <td style="padding:8px 10px;color:var(--texto3);font-size:11px">${p.supervisor}</td>
+      <td style="padding:8px 10px;color:var(--texto3);font-size:11px;white-space:nowrap">${fmtDate(p.fecha)}</td>
+    </tr>`).join('');
 }
 
 function switchCobTab(tab,btn){
