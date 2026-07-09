@@ -1955,31 +1955,34 @@ function parseSheetsRow(row){
     return String(v).trim();
   };
 
-  const sv      = str(0);
-  const sucursal= str(2);
-  const fechaRaw= str(3);
+  // Columns: sv(0) supervisor(1) sucursal(2) fecha(3) encargado(4) encargado_presente(5) s1(6) s2(7) s2b(8) s3(9) s4(10) s4b(11) obs(12) pendientes(13) admin(14) puntos_positivos(15) seguimiento_pendientes(16)
+  const sv       = str(0);
+  const sucursal = str(2);
+  const fechaRaw = str(3);
   if(!sv||!sucursal||!fechaRaw) return null;
 
   // Normalize fecha to YYYY-MM-DD
   let fecha = fechaRaw;
-  if(fecha.includes('/')) fecha = fecha.split('/').reverse().join('-'); // DD/MM/YYYY → YYYY-MM-DD
+  if(fecha.includes('/')) fecha = fecha.split('/').reverse().join('-');
   fecha = fecha.replace(/\//g,'-');
 
-  const obsRaw = str(10);
+  const obsRaw = str(12);
   const obs = obsRaw ? obsRaw.split(' | ').filter(Boolean) : [];
 
-  const pendRaw = str(11);
+  const pendRaw = str(13);
   const pendientes = pendRaw ? pendRaw.split(' | ').filter(Boolean).map(t=>({texto:t,tag:'tag-trd'})) : [];
 
-  const adminRaw = str(12);
+  const adminRaw = str(14);
   const admin = {};
   if(adminRaw){ adminRaw.split(' | ').forEach(p=>{ const [k,v]=p.split(': '); if(k) admin[k.trim()]=v?.trim(); }); }
 
-  const ppRaw = str(13);
+  const ppRaw = str(15);
 
   return {
     sv, sucursal, fecha,
-    secciones:{ s1:num(4), s2:num(5), s2b:num(6), s3:num(7), s4:num(8), s4b:num(9) },
+    encargado: str(4),
+    encargado_presente: str(5),
+    secciones:{ s1:num(6), s2:num(7), s2b:num(8), s3:num(9), s4:num(10), s4b:num(11) },
     obs, pendientes, admin,
     puntos_positivos: ppRaw||'',
     _fromSheets: true,
