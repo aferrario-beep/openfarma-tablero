@@ -605,6 +605,18 @@ const SUCURSALES = {
   JB:['Openfarma Escobar (Zanotepa)','Open Paseo Pilar (Pierzapa)','Openfarma Paseo Champagnat (Nuevo Paseo)','Openfarma La Escala (Misparza)','Openfarma Vila Terra (Villanueva)','Openfarma Ven Street Center (Farmadique)','Openfarma Benavidez'],
 };
 const SV_NAMES  = {AT:'Ariel Tessio',SC:'Sebastián Cobreros',GG:'Graciela Giles',JB:'Julio Botta'};
+const USUARIO_SV = {
+  'atessio':'AT', 'scobreros':'SC', 'ggiles':'GG', 'jbotta':'JB'
+};
+
+function getSvKeyFromUser(user){
+  if(!user) return null;
+  return USUARIO_SV[user.usuario] || null;
+}
+
+function isGerencia(){
+  return currentUser && currentUser.rol === 'gerencia';
+}
 const SEC_KEYS  = ['s1','s2','s2b','s3','s4','s4b'];
 const SEC_LABELS= {s1:'Imagen exterior',s2:'Perf. Masiva',s2b:'Perf. Selectiva',s3:'Mostrador',s4:'Sector Caja',s4b:'Otros sectores'};
 const META = 85;
@@ -646,8 +658,21 @@ const fmtDate = d => { if(!d) return '—'; if(typeof d==='string'&&d.startsWith
 const diasDesde = d => { if(!d) return null; let dt; if(typeof d==='string'&&d.includes('-')){ const p=d.split('-'); dt=new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2])); } else return null; if(isNaN(dt.getTime())) return null; const diff=Math.floor((new Date()-dt)/(86400000)); return diff===0?'hoy':diff===1?'ayer':diff<0?'hoy':`hace ${diff}d`; };
 
 function visitasFiltradas(vv) {
-  if(!filtroPeriodo) return vv;
-  return vv.filter(v=>v.fecha&&String(v.fecha).startsWith(filtroPeriodo));
+  let filtered = vv;
+  // Supervisors only see their own data
+  if(currentUser && currentUser.rol === 'supervisor'){
+    const svKey = getSvKeyFromUser(currentUser);
+    if(svKey) filtered = filtered.filter(v=>v.sv===svKey);
+  }
+  // In supervisor page: only show their sucursales
+  const page = document.querySelector('.page.show');
+  if(page && page.id==='page-supervisor' && currentSv){
+    const permitidas = SUCURSALES[currentSv] || [];
+    filtered = filtered.filter(v=>permitidas.includes(v.sucursal));
+  }
+  // Period filter
+  if(!filtroPeriodo) return filtered;
+  return filtered.filter(v=>v.fecha&&String(v.fecha).startsWith(filtroPeriodo));
 }
 
 // ── SESSION ────────────────────────────────────────────────
@@ -675,7 +700,15 @@ async function doLogin(){
       document.getElementById('sb-user-name').textContent=data.nombre;
       document.getElementById('sb-user-role').textContent=data.rol==='gerencia'?'Gerencia — acceso total':'Supervisor';
       visitas=loadVisitas();
-      renderAll();
+      updateSidebarScores();
+      populateFiltroPeriodo();
+      applyRoleUI();
+      const svKey = getSvKeyFromUser(data);
+      if(svKey){
+        showSvPage(svKey, document.getElementById('nav-'+svKey));
+      } else {
+        renderGerencial();
+      }
       syncFromSheets();
       setInterval(()=>{ if(currentUser) syncFromSheets(); },5*60*1000);
     } else {
@@ -1427,6 +1460,34 @@ function exportPDF(){
 
 
 
+// ── ROLE-BASED UI ─────────────────────────────────────────
+function applyRoleUI(){
+  if(!currentUser) return;
+  const esSupervisor = currentUser.rol === 'supervisor';
+  const svKey = getSvKeyFromUser(currentUser);
+
+  // Hide gerencial view from supervisors
+  const navGer = document.getElementById('nav-gerencial');
+  if(navGer) navGer.style.display = esSupervisor ? 'none' : '';
+
+  // Hide other supervisors from sidebar
+  if(esSupervisor && svKey){
+    ['AT','SC','GG','JB'].forEach(k=>{
+      const el = document.getElementById('nav-'+k);
+      if(el) el.style.display = k === svKey ? '' : 'none';
+    });
+    // Hide export and checklist load button for supervisors
+    const btnChecklist = document.querySelector('.btn-checklist');
+    // Keep checklist visible for supervisors
+  }
+
+  // Hide PDF export for supervisors in presentation mode
+  const btnExport = document.querySelector('[onclick="exportPDF()"]');
+  if(btnExport && esSupervisor) btnExport.style.display = 'none';
+  const btnPres = document.getElementById('btn-presentacion');
+  if(btnPres && esSupervisor) btnPres.style.display = 'none';
+}
+
 // ── MODO PRESENTACIÓN ─────────────────────────────────────
 let enPresentacion = false;
 function togglePresentacion(){
@@ -1514,7 +1575,13 @@ if(savedSession){
   visitas=loadVisitas();
   updateSidebarScores();
   populateFiltroPeriodo();
-  renderGerencial();
+  applyRoleUI();
+  const svKey = getSvKeyFromUser(savedSession);
+  if(svKey){
+    showSvPage(svKey, document.getElementById('nav-'+svKey));
+  } else {
+    renderGerencial();
+  }
   syncFromSheets();
   setInterval(()=>{ if(currentUser) syncFromSheets(); },5*60*1000);
 }
