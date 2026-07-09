@@ -1267,8 +1267,8 @@ function renderSvCards(vf){
   const usedVisitas=vf||visitas;
   const keys = ['AT','SC','GG','JB'];
   document.getElementById('sv-cards-gerencial').innerHTML = keys.map(k=>{
-    const sc    = svAvgScore(k);
     const vv    = usedVisitas.filter(v=>v.sv===k).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+    const sc    = vv.length ? avg(vv.map(visitaAvg).filter(x=>x!==null)) : null;
     const pending = vv.reduce((a,v)=>a+v.pendientes.length,0);
     const diff  = tendencia(vv);
     const lastFecha = vv.length ? vv[0].fecha : null;
