@@ -969,11 +969,16 @@ function renderGerCobertura(vf){
     const vvSuc=vf.filter(v=>v.sucursal===s).sort((a,b)=>b.fecha.localeCompare(a.fecha));
     const last=vvSuc.length?vvSuc[0]:null;
     const sc=last?visitaAvg(last):null;
-    if(!last) return `<div class="cob-card sin-visitar"><div class="cob-name" title="${s}">${s}</div><div style="font-size:11px;color:var(--texto3);margin-top:4px">Sin visitar</div></div>`;
-    return `<div class="cob-card visitada" onclick="showSvPage('${k}',null)" title="${s}">
+    if(!last) return `<div class="cob-card sin-visitar" title="${s}">
+      <div class="cob-name">${s}</div>
+      <div style="font-size:11px;color:var(--rojo);margin-top:4px;font-weight:600">🔴 Sin visitar</div>
+    </div>`;
+    const dias = Math.floor((new Date() - new Date(last.fecha)) / 86400000);
+    const semIcon = dias <= 7 ? '🟢' : dias <= 14 ? '🟡' : '🔴';
+    return `<div class="cob-card visitada" onclick="openPanel('${s.replace(/'/g,"\\'")}','${k}')" style="cursor:pointer" title="${s}">
       <div class="cob-name">${s}</div>
       <div class="cob-score" style="color:${scoreColor(sc)}">${sc!==null?sc+'%':'—'}</div>
-      <div class="cob-fecha">${fmtDate(last.fecha)} · ${diasDesde(last.fecha)}</div>
+      <div class="cob-fecha">${semIcon} ${fmtDate(last.fecha)} · ${diasDesde(last.fecha)}</div>
     </div>`;
   }).join('');
 }
@@ -988,6 +993,22 @@ function openPanel(suc, svKey){
   document.getElementById('panel-suc-name').textContent = suc;
   document.getElementById('panel-suc-meta').textContent = `${SV_NAMES[svKey]} · Última visita: ${fmtDate(last.fecha)} · ${diasDesde(last.fecha)}`;
 
+  // Predictive trend — calculate slope from last 3 visits
+  let tendenciaPred = null;
+  if(vvSuc.length >= 2){
+    const scores = vvSuc.slice(0, Math.min(4, vvSuc.length)).map(visitaAvg).filter(x=>x!==null);
+    if(scores.length >= 2){
+      // Simple linear regression slope
+      const n = scores.length;
+      const xMean = (n-1)/2;
+      const yMean = scores.reduce((a,b)=>a+b,0)/n;
+      let num=0, den=0;
+      scores.forEach((y,i)=>{ num+=(i-xMean)*(y-yMean); den+=(i-xMean)**2; });
+      const slope = den!==0 ? -(num/den) : 0; // negative because vvSuc is desc order
+      tendenciaPred = Math.round(slope*10)/10;
+    }
+  }
+
   const colScore = scoreColor(sc);
 
   let html = `
@@ -996,6 +1017,9 @@ function openPanel(suc, svKey){
       <div class="panel-score-info">
         <div class="panel-score-label">Cumplimiento general</div>
         <div class="panel-score-sub">Meta: ${META}% · ${sc!==null&&sc>=META?'✓ Por encima de la meta':'⚠ Por debajo de la meta'}</div>
+        ${tendenciaPred!==null?`<div style="font-size:11px;margin-top:4px;font-weight:600;color:${tendenciaPred>0?'var(--verde)':tendenciaPred<0?'var(--rojo)':'var(--texto3)'}">
+          Tendencia: ${tendenciaPred>0?'↑ Mejorando':tendenciaPred<0?'↓ Deteriorando':'→ Estable'} (${tendenciaPred>0?'+':''}${tendenciaPred}% por visita)
+        </div>`:''}
         ${last.encargado?`<div style="font-size:11px;color:var(--texto3);margin-top:4px">Encargado: <strong>${last.encargado}</strong> · ${last.encargado_presente==='Si'?'<span style="color:var(--verde)">Presente</span>':'<span style="color:var(--rojo)">Ausente</span>'}</div>`:''}
       </div>
     </div>`;
