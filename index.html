@@ -1181,14 +1181,14 @@ function diasDesde(fechaStr){
 }
 
 function renderResumenEjecutivo(vf){
-  const used = vf || visitas;
+  const used = vf && vf.length > 0 ? vf : [];
   const hace7 = new Date(); hace7.setDate(hace7.getDate()-7);
   const fechaMin = hace7.toISOString().split('T')[0];
   const semana = used.filter(v=>v.fecha>=fechaMin);
   const criticas = used.filter(v=>{ const s=visitaAvg(v); return s!==null&&s<65; });
   const pendTotal = used.reduce((a,v)=>a+v.pendientes.length,0);
-  const allSucsVisited = used.map(v=>v.sucursal);
-  const best = [...used].sort((a,b)=>(visitaAvg(b)||0)-(visitaAvg(a)||0))[0];
+  const withScore = used.filter(v=>visitaAvg(v)!==null);
+  const best = withScore.length ? [...withScore].sort((a,b)=>(visitaAvg(b)||0)-(visitaAvg(a)||0))[0] : null;
   const avgAll = avg(used.map(visitaAvg).filter(x=>x!==null));
 
   const el = document.getElementById('ger-resumen-ejecutivo');
@@ -1200,8 +1200,8 @@ function renderResumenEjecutivo(vf){
         <div style="font-size:11px;color:var(--green-dark);margin-top:2px">cumplimiento promedio</div>
       </div>
       <div style="background:var(--blue-light);border-radius:var(--radius);padding:10px 14px;text-align:center">
-        <div style="font-size:22px;font-weight:700;color:var(--blue)">${semana.length}</div>
-        <div style="font-size:11px;color:var(--blue-dark);margin-top:2px">visitas esta semana</div>
+        <div style="font-size:22px;font-weight:700;color:var(--blue)">${used.length}</div>
+        <div style="font-size:11px;color:var(--blue-dark);margin-top:2px">visitas en el período</div>
       </div>
       <div style="background:${criticas.length>0?'var(--red-light)':'var(--green-light)'};border-radius:var(--radius);padding:10px 14px;text-align:center">
         <div style="font-size:22px;font-weight:700;color:${criticas.length>0?'var(--red)':'var(--green-mid)'}">${criticas.length}</div>
