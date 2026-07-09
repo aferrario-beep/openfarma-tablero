@@ -3,222 +3,252 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tablero de Gestión — Openfarma</title>
+<title>Openfarma — Ejecución PDV</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --green:#8DC63F;--green-light:#F2F8E8;--green-mid:#7AB234;--green-dark:#5A8520;
-  --amber:#BA7517;--amber-light:#FAEEDA;--amber-dark:#633806;
-  --red:#A32D2D;--red-light:#FCEBEB;--red-dark:#791F1F;
-  --blue:#185FA5;--blue-light:#E6F1FB;--blue-dark:#0C447C;
-  --gray:#888780;--gray-light:#F1EFE8;--gray-dark:#444441;
-  --bg:#f4f6f4;--surface:#fff;--border:#e0e0de;
-  --text:#1a1a1a;--text2:#555;--text3:#888;
-  --radius:10px;--radius-lg:14px;
+  --verde:#2D7A4F;--verde-mid:#3DAA6A;--verde-light:#E8F5EE;--verde-dark:#1A5C38;
+  --gris-bg:#F0F2F5;--blanco:#FFFFFF;--borde:#E2E8F0;
+  --texto:#1A2332;--texto2:#4A5568;--texto3:#718096;
+  --rojo:#C53030;--rojo-light:#FFF5F5;--rojo-mid:#E53E3E;
+  --ambar:#B45309;--ambar-light:#FFFBEB;--ambar-mid:#D97706;
+  --azul:#2B6CB0;--azul-light:#EBF8FF;
+  --meta:85;
+  --shadow:0 1px 4px rgba(0,0,0,.08);
+  --shadow-md:0 4px 12px rgba(0,0,0,.1);
+  --radius:10px;--radius-sm:6px;
 }
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--gris-bg);color:var(--texto);font-size:13px;min-height:100vh}
 
-/* LOGIN */
-.login-overlay{position:fixed;inset:0;background:var(--green-dark);z-index:999;display:flex;align-items:center;justify-content:center}
+/* ── LOGIN ────────────────────────────────────────────────── */
+.login-overlay{position:fixed;inset:0;background:var(--gris-bg);z-index:1000;display:flex;align-items:center;justify-content:center}
 .login-overlay.hide{display:none}
-.login-box{background:#fff;border-radius:16px;padding:32px 28px;width:340px;max-width:92vw}
+.login-box{background:var(--blanco);border-radius:16px;padding:36px 40px;width:360px;box-shadow:var(--shadow-md)}
 .login-logo{display:flex;align-items:center;gap:10px;margin-bottom:24px}
-.login-logo-box{width:40px;height:40px;background:var(--green-light);border-radius:10px;display:flex;align-items:center;justify-content:center}
-.login-logo-box svg{width:22px;height:22px;stroke:var(--green-dark);stroke-width:2;fill:none}
-.login-brand{font-size:17px;font-weight:700;color:var(--green-dark)}
-.login-sub{font-size:12px;color:var(--text3);margin-top:2px}
-.login-field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
-.login-field label{font-size:12px;font-weight:500;color:var(--text2)}
-.login-field input{padding:11px 14px;border:1px solid var(--border);border-radius:var(--radius);font-size:14px;font-family:inherit;color:var(--text);transition:border-color .15s}
-.login-field input:focus{outline:none;border-color:var(--green)}
-.login-btn{width:100%;padding:13px;border:none;border-radius:var(--radius);background:var(--green);color:#fff;font-size:14px;font-weight:600;cursor:pointer;margin-top:6px;transition:background .15s}
-.login-btn:active{background:var(--green-dark)}
-.login-btn.loading{background:var(--green-mid);pointer-events:none}
-.login-err{background:var(--red-light);color:var(--red-dark);border-radius:var(--radius);padding:8px 12px;font-size:13px;margin-top:10px;display:none}
+.login-logo-mark{width:40px;height:40px;background:var(--verde);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:16px}
+.login-title{font-size:18px;font-weight:700;color:var(--texto);margin-bottom:4px}
+.login-sub{font-size:12px;color:var(--texto3)}
+.login-field{margin-bottom:14px}
+.login-field label{display:block;font-size:11px;font-weight:600;color:var(--texto2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
+.login-field input{width:100%;padding:10px 12px;border:1.5px solid var(--borde);border-radius:var(--radius-sm);font-size:13px;outline:none;transition:border .15s}
+.login-field input:focus{border-color:var(--verde)}
+.login-btn{width:100%;padding:11px;background:var(--verde);color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;margin-top:4px}
+.login-btn:hover{background:var(--verde-dark)}
+.login-err{font-size:12px;color:var(--rojo);margin-top:8px;display:none}
 .login-err.show{display:block}
 
-/* LAYOUT */
+/* ── SHELL ─────────────────────────────────────────────────── */
 .shell{display:flex;min-height:100vh}
-.sidebar{width:220px;background:var(--green-dark);display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;height:100vh;z-index:100}
+
+/* ── SIDEBAR ───────────────────────────────────────────────── */
+.sidebar{width:220px;background:var(--verde-dark);display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;height:100vh;z-index:100;overflow-y:auto}
+.sb-brand{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sb-logomark{width:36px;height:36px;background:var(--verde-mid);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:15px;flex-shrink:0}
+.sb-brand-inner{display:flex;align-items:center;gap:10px}
+.sb-brand-name{font-size:14px;font-weight:700;color:#fff}
+.sb-brand-sub{font-size:10px;color:rgba(255,255,255,.45);margin-top:1px}
+.sb-sec{padding:10px 16px 4px;font-size:9px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em}
+.sb-item{display:flex;align-items:center;gap:9px;padding:9px 16px;font-size:12px;color:rgba(255,255,255,.6);cursor:pointer;border-left:3px solid transparent;transition:all .15s}
+.sb-item:hover{background:rgba(255,255,255,.07);color:#fff}
+.sb-item.active{background:rgba(255,255,255,.12);color:#fff;border-left-color:var(--verde-mid);font-weight:600}
+.sb-item .sb-pct{margin-left:auto;font-size:10px;font-weight:600;padding:2px 6px;border-radius:10px}
+.sb-item .sb-pct.ok{background:rgba(61,170,106,.25);color:#7DDBAB}
+.sb-item .sb-pct.warn{background:rgba(217,119,6,.25);color:#FBD38D}
+.sb-item .sb-pct.bad{background:rgba(229,62,62,.25);color:#FEB2B2}
+.sb-item .sb-pct.na{background:rgba(255,255,255,.1);color:rgba(255,255,255,.4)}
+.sb-divider{border:none;border-top:1px solid rgba(255,255,255,.08);margin:6px 0}
+.sb-user{padding:14px 16px;border-top:1px solid rgba(255,255,255,.1);margin-top:auto}
+.sb-user-name{font-size:12px;font-weight:600;color:#fff}
+.sb-user-role{font-size:10px;color:rgba(255,255,255,.4);margin-top:1px}
+.sb-logout{font-size:10px;color:rgba(255,255,255,.3);cursor:pointer;margin-top:4px;display:inline-block}
+.sb-logout:hover{color:rgba(255,255,255,.6)}
+
+/* ── MAIN ──────────────────────────────────────────────────── */
 .main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh}
 
-/* SIDEBAR */
-.sb-brand{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.1)}
-.sb-brand .logo{display:flex;align-items:center;gap:10px;margin-bottom:2px}
-.sb-brand .logo-box{width:32px;height:32px;background:var(--green-light);border-radius:8px;display:flex;align-items:center;justify-content:center}
-.sb-brand .logo-box svg{width:18px;height:18px;stroke:var(--green-dark);stroke-width:2;fill:none}
-.sb-brand .brand-name{font-size:15px;font-weight:600;color:#fff}
-.sb-brand .brand-sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:2px}
-.sb-section{padding:12px 14px 6px;font-size:10px;font-weight:600;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em}
-.sb-item{display:flex;align-items:center;gap:10px;padding:9px 18px;font-size:13px;color:rgba(255,255,255,.7);cursor:pointer;transition:all .15s;border-left:3px solid transparent}
-.sb-item svg{width:16px;height:16px;stroke:currentColor;stroke-width:1.8;fill:none;flex-shrink:0}
-.sb-item:hover{background:rgba(255,255,255,.08);color:#fff}
-.sb-item.active{background:rgba(255,255,255,.12);color:#fff;border-left-color:var(--green-light)}
-.sb-divider{border:none;border-top:1px solid rgba(255,255,255,.1);margin:8px 0}
-.sb-user{padding:14px 18px;border-top:1px solid rgba(255,255,255,.1);margin-top:auto}
-.sb-user .uname{font-size:13px;color:#fff;font-weight:500}
-.sb-user .urole{font-size:11px;color:rgba(255,255,255,.5);margin-top:2px}
+/* ── TOPBAR ────────────────────────────────────────────────── */
+.topbar{background:var(--blanco);border-bottom:1px solid var(--borde);padding:12px 24px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;box-shadow:var(--shadow)}
+.topbar-title{font-size:16px;font-weight:700;color:var(--texto);flex:1;min-width:0}
+.topbar-date{font-size:11px;color:var(--texto3);white-space:nowrap}
+.periodo-select{padding:7px 12px;border-radius:var(--radius-sm);border:1.5px solid var(--borde);font-size:12px;color:var(--texto);background:var(--blanco);cursor:pointer;outline:none}
+.periodo-select:focus{border-color:var(--verde)}
+.btn-sync{padding:7px 16px;border-radius:var(--radius-sm);border:none;background:var(--azul);color:#fff;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.btn-sync:hover{background:#2562a0}
+.btn-checklist{padding:7px 16px;border-radius:var(--radius-sm);border:none;background:var(--verde);color:#fff;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.btn-checklist:hover{background:var(--verde-dark)}
 
-/* TOPBAR */
-.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.topbar-title{font-size:17px;font-weight:600;color:var(--text)}
-.topbar-right{display:flex;align-items:center;gap:10px}
-.topbar-date{font-size:12px;color:var(--text3)}
-.btn-import{padding:8px 16px;border-radius:var(--radius);background:var(--green);color:#fff;border:none;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px}
-.btn-import svg{width:14px;height:14px;stroke:#fff;stroke-width:2;fill:none}
-
-/* CONTENT */
-.content{padding:24px;flex:1}
+/* ── CONTENT ───────────────────────────────────────────────── */
+.content{padding:20px 24px;flex:1}
 .page{display:none}.page.show{display:block}
 
-/* CARDS */
-.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:22px}
-.kpi{background:var(--surface);border-radius:var(--radius-lg);padding:16px 18px;border:1px solid var(--border)}
-.kpi .k-lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
-.kpi .k-val{font-size:26px;font-weight:700;line-height:1}
-.kpi .k-sub{font-size:12px;color:var(--text3);margin-top:4px}
-.kpi.k-green .k-val{color:var(--green-mid)}
-.kpi.k-amber .k-val{color:var(--amber)}
-.kpi.k-red   .k-val{color:var(--red)}
-.kpi.k-blue  .k-val{color:var(--blue)}
+/* ── HERO METRICS ──────────────────────────────────────────── */
+.hero-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.hero-card{background:var(--blanco);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);border-top:4px solid var(--borde);position:relative}
+.hero-card.verde{border-top-color:var(--verde-mid)}
+.hero-card.azul{border-top-color:var(--azul)}
+.hero-card.ambar{border-top-color:var(--ambar-mid)}
+.hero-card.rojo{border-top-color:var(--rojo-mid)}
+.hero-label{font-size:10px;font-weight:700;color:var(--texto3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.hero-val{font-size:36px;font-weight:800;line-height:1;color:var(--texto)}
+.hero-card.verde .hero-val{color:var(--verde)}
+.hero-card.azul .hero-val{color:var(--azul)}
+.hero-card.ambar .hero-val{color:var(--ambar)}
+.hero-card.rojo .hero-val{color:var(--rojo)}
+.hero-sub{font-size:11px;color:var(--texto3);margin-top:6px;display:flex;align-items:center;gap:4px}
+.trend-up{color:var(--verde-mid);font-weight:700}
+.trend-down{color:var(--rojo-mid);font-weight:700}
+.meta-line{position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--borde);border-radius:0 0 var(--radius) var(--radius);overflow:hidden}
+.meta-fill{height:100%;background:var(--verde-mid);transition:width .6s ease}
 
-.card{background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);padding:18px 20px;margin-bottom:18px}
-.card-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:6px}
-.card-title svg{width:15px;height:15px;stroke:var(--green);stroke-width:2;fill:none}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
-.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:18px}
+/* ── CARDS ─────────────────────────────────────────────────── */
+.card{background:var(--blanco);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);margin-bottom:14px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.card-title{font-size:12px;font-weight:700;color:var(--texto2);text-transform:uppercase;letter-spacing:.06em}
+.card-subtitle{font-size:11px;color:var(--texto3);font-weight:400}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.col-3-1{display:grid;grid-template-columns:3fr 2fr;gap:14px;margin-bottom:14px}
 
-/* TABLE */
-.tbl{width:100%;border-collapse:collapse;font-size:13px}
-.tbl th{text-align:left;padding:8px 10px;color:var(--text3);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border)}
-.tbl td{padding:9px 10px;border-bottom:1px solid #f0f0ee;vertical-align:middle}
-.tbl tr:last-child td{border-bottom:none}
-.tbl tr:hover td{background:#fafaf8}
-.tbl .suc-name{font-weight:500;color:var(--text)}
+/* ── SUPERVISOR CARDS ──────────────────────────────────────── */
+.sv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.sv-card{background:var(--gris-bg);border-radius:var(--radius-sm);padding:14px 16px;border:1.5px solid var(--borde);cursor:pointer;transition:all .15s}
+.sv-card:hover{border-color:var(--verde);box-shadow:0 0 0 3px rgba(61,170,106,.1)}
+.sv-card.alerta{border-color:#FEB2B2;background:var(--rojo-light)}
+.sv-name{font-size:13px;font-weight:700;color:var(--texto);margin-bottom:2px}
+.sv-meta{font-size:10px;color:var(--texto3);margin-bottom:10px}
+.sv-score-row{display:flex;align-items:baseline;gap:8px;margin-bottom:4px}
+.sv-score{font-size:30px;font-weight:800;line-height:1}
+.sv-trend{font-size:11px;font-weight:600}
+.sv-meta-sub{font-size:10px;color:var(--texto3);margin-bottom:10px}
+.sv-bars{display:flex;flex-direction:column;gap:5px}
+.bar-row{display:flex;align-items:center;gap:6px}
+.bar-label{font-size:10px;color:var(--texto3);width:85px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{flex:1;height:5px;background:var(--borde);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .4s ease}
+.bar-val{font-size:10px;font-weight:600;width:30px;text-align:right}
+.meta-ref{width:1px;height:14px;background:var(--ambar-mid);position:absolute;opacity:.6}
 
-/* BADGES */
-.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
-.badge-ok  {background:var(--green-light);color:var(--green-dark)}
-.badge-warn{background:var(--amber-light);color:var(--amber-dark)}
-.badge-bad {background:var(--red-light);color:var(--red-dark)}
-.badge-na  {background:var(--gray-light);color:var(--gray-dark)}
-.badge-blue{background:var(--blue-light);color:var(--blue-dark)}
+/* ── GOAL INDICATOR ─────────────────────────────────────────── */
+.goal-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:3px 8px;border-radius:10px}
+.goal-over{background:var(--verde-light);color:var(--verde)}
+.goal-under{background:var(--rojo-light);color:var(--rojo)}
+.goal-line{width:100%;height:1px;background:var(--ambar-mid);margin:10px 0;position:relative}
+.goal-line::after{content:'Meta 85%';position:absolute;right:0;top:-14px;font-size:9px;color:var(--ambar);font-weight:600}
 
-/* SCORE BAR */
-.sbar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.sbar-label{font-size:12px;color:var(--text2);width:130px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sbar-track{flex:1;height:8px;background:#eee;border-radius:4px;overflow:hidden}
-.sbar-fill{height:100%;border-radius:4px}
-.sbar-val{font-size:12px;font-weight:600;width:30px;text-align:right}
+/* ── RANKING ────────────────────────────────────────────────── */
+.rank-item{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #F7FAFC}
+.rank-item:last-child{border-bottom:none}
+.rank-pos{width:22px;font-size:11px;font-weight:700;color:var(--texto3);text-align:center;flex-shrink:0}
+.rank-medal{font-size:14px;width:22px;text-align:center;flex-shrink:0}
+.rank-name{flex:1;font-size:12px;color:var(--texto);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank-sv{font-size:10px;color:var(--texto3);flex-shrink:0;width:65px;text-align:right}
+.rank-bar-wrap{width:70px;height:5px;background:var(--borde);border-radius:3px;overflow:hidden;flex-shrink:0;position:relative}
+.rank-score{font-size:12px;font-weight:700;width:36px;text-align:right;flex-shrink:0}
 
-/* TIMELINE */
-.timeline{display:flex;flex-direction:column;gap:10px}
-.tl-item{display:flex;gap:12px;align-items:flex-start}
-.tl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
-.tl-dot-ok  {background:var(--green-mid)}
-.tl-dot-warn{background:var(--amber)}
-.tl-dot-bad {background:var(--red)}
-.tl-body .tl-suc{font-size:13px;font-weight:500;color:var(--text)}
-.tl-body .tl-meta{font-size:11px;color:var(--text3);margin-top:1px}
+/* ── PENDIENTES ─────────────────────────────────────────────── */
+.pend-area-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #F7FAFC}
+.pend-area-row:last-child{border-bottom:none}
+.pend-area-name{font-size:12px;color:var(--texto2);flex:1}
+.pend-bar-wrap{width:120px;height:6px;background:var(--borde);border-radius:3px;overflow:hidden;flex-shrink:0}
+.pend-bar-fill{height:100%;border-radius:3px}
+.pend-count{font-size:12px;font-weight:700;width:20px;text-align:right;flex-shrink:0}
+.pend-footer{display:flex;justify-content:space-between;padding-top:10px;margin-top:4px;border-top:1px solid var(--borde);font-size:11px;color:var(--texto3)}
 
-/* PEND */
-.pend-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:var(--radius);background:var(--bg);margin-bottom:8px}
-.pend-item svg{width:15px;height:15px;stroke:var(--text3);stroke-width:2;fill:none;flex-shrink:0;margin-top:1px}
-.pend-text{font-size:13px;color:var(--text);flex:1}
-.pend-tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;margin-top:3px;display:inline-block}
-.tag-mkt {background:var(--blue-light);color:var(--blue-dark)}
-.tag-sis {background:var(--amber-light);color:var(--amber-dark)}
-.tag-mant{background:var(--red-light);color:var(--red-dark)}
-.tag-trd {background:var(--green-light);color:var(--green-dark)}
+/* ── COBERTURA ──────────────────────────────────────────────── */
+.cobertura-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.cob-card{background:var(--gris-bg);border-radius:var(--radius-sm);padding:10px 12px;border:1.5px solid var(--borde)}
+.cob-card.visitada{border-color:var(--verde-mid);background:var(--verde-light)}
+.cob-card.sin-visitar{border-color:var(--borde);opacity:.7}
+.cob-name{font-size:11px;font-weight:600;color:var(--texto);margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cob-score{font-size:16px;font-weight:800}
+.cob-fecha{font-size:9px;color:var(--texto3);margin-top:2px}
 
-/* TABS PENDIENTES */
-.tab-nav-bar{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:16px}
-.tab-nav-btn{padding:8px 14px;font-size:12px;font-weight:500;color:var(--text3);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;white-space:nowrap}
-.tab-nav-btn:hover{color:var(--text)}
-.tab-nav-btn.active{color:var(--green);border-bottom-color:var(--green)}
-.tab-content{display:none}.tab-content.show{display:block}
+/* ── BADGES ─────────────────────────────────────────────────── */
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
+.b-ok{background:var(--verde-light);color:var(--verde)}
+.b-warn{background:var(--ambar-light);color:var(--ambar)}
+.b-bad{background:var(--rojo-light);color:var(--rojo)}
+.b-na{background:#F7FAFC;color:var(--texto3)}
 
-/* PENDIENTES POR AREA */
-.area-group{margin-bottom:16px}
-.area-group-title{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
-.area-group-title .area-count{font-size:11px;font-weight:600;padding:1px 7px;border-radius:10px;background:var(--gray-light);color:var(--gray-dark)}
-.pend-card{background:var(--bg);border-radius:var(--radius);padding:10px 12px;margin-bottom:6px;display:flex;align-items:flex-start;gap:10px}
-.pend-card-body{flex:1}
-.pend-card-text{font-size:13px;color:var(--text);margin-bottom:3px}
-.pend-card-meta{font-size:11px;color:var(--text3)}
+/* ── TABS ───────────────────────────────────────────────────── */
+.tab-bar{display:flex;gap:2px;margin-bottom:14px;background:#F0F2F5;border-radius:8px;padding:4px}
+.tab-btn{padding:6px 14px;border-radius:6px;border:none;background:transparent;font-size:12px;font-weight:500;color:var(--texto3);cursor:pointer;transition:all .15s}
+.tab-btn.active{background:var(--blanco);color:var(--texto);font-weight:600;box-shadow:var(--shadow)}
 
-/* GERENCIAL */
-.sv-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-bottom:22px}
-.sv-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;cursor:pointer;transition:all .15s}
-.sv-card:hover{border-color:var(--green);box-shadow:0 0 0 3px rgba(15,110,86,.08)}
-.sv-card.active-sv{border-color:var(--green);border-width:2px}
-.sv-card .sv-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
-.sv-card .sv-meta{font-size:12px;color:var(--text3);margin-bottom:12px}
-.sv-card .sv-score{font-size:22px;font-weight:700}
-.sv-card .sv-score-lbl{font-size:11px;color:var(--text3);margin-top:2px}
-.sv-mini-bars{margin-top:10px}
-
-/* MODAL IMPORT */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:none;align-items:center;justify-content:center}
-.modal-bg.show{display:flex}
-.modal{background:#fff;border-radius:var(--radius-lg);padding:24px;width:560px;max-width:95vw;max-height:85vh;overflow-y:auto}
-.modal h3{font-size:16px;font-weight:600;margin-bottom:6px}
-.modal p{font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6}
-.modal textarea{width:100%;height:220px;border:1px solid var(--border);border-radius:var(--radius);padding:12px;font-size:12px;font-family:monospace;resize:vertical;line-height:1.5}
-.modal-footer{display:flex;gap:10px;margin-top:14px;justify-content:flex-end}
-.btn-cancel{padding:9px 18px;border:1px solid var(--border);border-radius:var(--radius);background:#fff;color:var(--text2);font-size:13px;cursor:pointer}
-.btn-process{padding:9px 18px;border:none;border-radius:var(--radius);background:var(--green);color:#fff;font-size:13px;font-weight:500;cursor:pointer}
-.import-feedback{font-size:13px;padding:8px 12px;border-radius:var(--radius);margin-top:10px;display:none}
-.import-ok {background:var(--green-light);color:var(--green-dark);display:block}
-.import-err{background:var(--red-light);color:var(--red-dark);display:block}
-
-/* CHART CONTAINERS */
+/* ── CHART ──────────────────────────────────────────────────── */
 .chart-wrap{position:relative;height:200px}
 .chart-wrap-lg{position:relative;height:260px}
 
-/* COLLAPSIBLE */
-.collapsible-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
-.collapsible-header .toggle-icon{font-size:16px;color:var(--text3);transition:transform .2s;flex-shrink:0}
-.collapsible-header.collapsed .toggle-icon{transform:rotate(-90deg)}
-.collapsible-body{overflow:hidden;transition:max-height .25s ease}
-.collapsible-body.collapsed{display:none}
-.filter-active-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;background:var(--green-light);color:var(--green-dark);margin-left:8px}
+/* ── SECTION LABELS ─────────────────────────────────────────── */
+.section-label{font-size:11px;font-weight:700;color:var(--texto3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;margin-top:-4px}
 
-/* MISC */
-.empty{font-size:13px;color:var(--text3);padding:16px 0;text-align:center}
-.section-sub{font-size:12px;color:var(--text3);margin-bottom:16px;margin-top:-10px}
-.tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:3px}
+/* ── EMPTY ──────────────────────────────────────────────────── */
+.empty{font-size:12px;color:var(--texto3);padding:20px 0;text-align:center}
+
+/* ── TIMELINE ───────────────────────────────────────────────── */
+.tl-item{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid #F7FAFC}
+.tl-item:last-child{border-bottom:none}
+.tl-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.tl-content{flex:1;min-width:0}
+.tl-name{font-size:12px;font-weight:600;color:var(--texto)}
+.tl-meta{font-size:11px;color:var(--texto3);margin-top:1px}
+.tl-obs{font-size:11px;color:var(--texto2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── PEND MANAGE ────────────────────────────────────────────── */
+.pend-item{background:var(--gris-bg);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px;border-left:3px solid var(--borde)}
+.pend-item.abierto{border-left-color:var(--ambar-mid)}
+.pend-item.resuelto{border-left-color:var(--verde-mid);background:var(--verde-light)}
+.pend-item-area{font-size:10px;font-weight:700;color:var(--texto3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+.pend-item-txt{font-size:12px;color:var(--texto);margin-bottom:4px}
+.pend-item-meta{font-size:10px;color:var(--texto3)}
+.btn-resolver{padding:5px 12px;border-radius:var(--radius-sm);border:1.5px solid var(--verde);background:#fff;color:var(--verde);font-size:11px;font-weight:600;cursor:pointer;flex-shrink:0}
+.btn-resolver:hover{background:var(--verde-light)}
+
+/* ── MODAL ──────────────────────────────────────────────────── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;display:none;align-items:center;justify-content:center}
+.modal-bg.show{display:flex}
+.modal{background:var(--blanco);border-radius:14px;padding:24px;width:520px;max-width:95vw;max-height:85vh;overflow-y:auto;box-shadow:var(--shadow-md)}
+.modal h3{font-size:16px;font-weight:700;margin-bottom:6px}
+.modal p{font-size:13px;color:var(--texto2);margin-bottom:12px;line-height:1.6}
+.modal textarea{width:100%;height:200px;border:1.5px solid var(--borde);border-radius:var(--radius-sm);padding:10px;font-size:12px;font-family:monospace;resize:vertical}
+.modal-footer{display:flex;gap:8px;margin-top:12px;justify-content:flex-end}
+.btn-cancel{padding:8px 16px;border:1.5px solid var(--borde);border-radius:var(--radius-sm);background:#fff;color:var(--texto2);font-size:12px;cursor:pointer}
+.btn-ok{padding:8px 16px;border:none;border-radius:var(--radius-sm);background:var(--verde);color:#fff;font-size:12px;font-weight:600;cursor:pointer}
+.import-msg{font-size:12px;padding:8px 10px;border-radius:var(--radius-sm);margin-top:8px;display:none}
+.import-ok{background:var(--verde-light);color:var(--verde);display:block}
+.import-err{background:var(--rojo-light);color:var(--rojo);display:block}
 
 @media(max-width:768px){
-  .sidebar{width:100%;height:auto;position:relative;flex-direction:row;flex-wrap:wrap}
+  .sidebar{width:100%;height:auto;position:relative}
   .main{margin-left:0}
-  .two-col,.three-col{grid-template-columns:1fr}
-  .sb-item{padding:8px 12px}
+  .hero-grid{grid-template-columns:1fr 1fr}
+  .sv-grid{grid-template-columns:1fr 1fr}
+  .two-col,.three-col,.col-3-1{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
 
-<!-- LOGIN OVERLAY -->
+<!-- LOGIN -->
 <div class="login-overlay" id="login-overlay">
   <div class="login-box">
     <div class="login-logo">
-      <div class="login-logo-box" style="background:#fff;padding:3px"><img src="data:image/jpeg;base64,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" style="width:32px;height:32px;object-fit:contain;border-radius:6px"></div>
+      <div class="login-logo-mark">OF</div>
       <div>
-        <div class="login-brand">Openfarma</div>
-        <div class="login-sub">Tablero de Gestión PDV</div>
+        <div class="login-title">Openfarma PDV</div>
+        <div class="login-sub">Tablero de Gestión de Ejecución</div>
       </div>
     </div>
     <div class="login-field">
       <label>Usuario</label>
-      <input type="text" id="l-usuario" placeholder="Tu usuario" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
+      <input type="text" id="l-usuario" placeholder="usuario" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <div class="login-field">
       <label>Contraseña</label>
-      <input type="password" id="l-password" placeholder="Tu contraseña" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      <input type="password" id="l-password" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
-    <button class="login-btn" id="login-btn" onclick="doLogin()">Ingresar</button>
+    <button class="login-btn" id="login-btn" onclick="doLogin()">Ingresar →</button>
     <div class="login-err" id="login-err"></div>
   </div>
 </div>
@@ -228,51 +258,53 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <!-- SIDEBAR -->
 <div class="sidebar">
   <div class="sb-brand">
-    <div class="logo">
-      <div class="logo-box" style="background:#fff;padding:3px"><img src="data:image/jpeg;base64,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" style="width:26px;height:26px;object-fit:contain;border-radius:4px"></div>
+    <div class="sb-brand-inner">
+      <div class="sb-logomark">OF</div>
       <div>
-        <div class="brand-name">Openfarma</div>
+        <div class="sb-brand-name">Openfarma</div>
+        <div class="sb-brand-sub">Ejecución PDV</div>
       </div>
     </div>
-    <div class="brand-sub">Tablero de Gestión PDV</div>
   </div>
 
-  <div class="sb-section">Vista</div>
-  <div class="sb-item active" onclick="showPage('gerencial',this)">
-    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-    Gerencial
+  <div class="sb-sec">Vista</div>
+  <div class="sb-item active" onclick="showPage('gerencial',this)" id="nav-gerencial">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    Vista gerencial
   </div>
 
-  <div class="sb-section">Supervisores</div>
-  <div class="sb-item" onclick="showSvPage('AT',this)">
-    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
+  <div class="sb-sec">Supervisores</div>
+  <div class="sb-item" onclick="showSvPage('AT',this)" id="nav-AT">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
     A. Tessio
+    <span class="sb-pct na" id="sb-pct-AT">—</span>
   </div>
-  <div class="sb-item" onclick="showSvPage('SC',this)">
-    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
+  <div class="sb-item" onclick="showSvPage('SC',this)" id="nav-SC">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
     S. Cobreros
+    <span class="sb-pct na" id="sb-pct-SC">—</span>
   </div>
-  <div class="sb-item" onclick="showSvPage('GG',this)">
-    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
+  <div class="sb-item" onclick="showSvPage('GG',this)" id="nav-GG">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
     G. Giles
+    <span class="sb-pct na" id="sb-pct-GG">—</span>
   </div>
-  <div class="sb-item" onclick="showSvPage('JB',this)">
-    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
+  <div class="sb-item" onclick="showSvPage('JB',this)" id="nav-JB">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
     J. Botta
+    <span class="sb-pct na" id="sb-pct-JB">—</span>
   </div>
 
   <hr class="sb-divider">
   <div class="sb-item" onclick="openImport()">
-    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
     Cargar checklist
   </div>
 
   <div class="sb-user">
-    <div class="uname">—</div>
-    <div class="urole">—</div>
-    <div style="margin-top:8px">
-      <button onclick="doLogout()" style="width:100%;padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:transparent;color:rgba(255,255,255,.6);font-size:11px;cursor:pointer">Cerrar sesión</button>
-    </div>
+    <div class="sb-user-name" id="sb-user-name">—</div>
+    <div class="sb-user-role" id="sb-user-role">—</div>
+    <span class="sb-logout" onclick="doLogout()">Cerrar sesión</span>
   </div>
 </div>
 
@@ -280,310 +312,141 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <div class="main">
   <div class="topbar">
     <div class="topbar-title" id="topbar-title">Vista gerencial</div>
-    <div class="topbar-right">
-      <div class="topbar-date" id="topbar-date"></div>
-      <select id="filtro-periodo" onchange="aplicarFiltroPeriodo()" style="padding:7px 12px;border-radius:var(--radius);border:1px solid var(--border);font-size:13px;background:#fff;color:var(--text)">
-        <option value="">Todos los períodos</option>
-      </select>
-      <button class="btn-import" onclick="openImport()">
-        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-        Cargar checklist
-      </button>
-    </div>
-  </div>
-  <!-- FILTER BAR — shown only when needed -->
-  <div id="filter-bar" style="display:none;background:var(--surface);border-bottom:1px solid var(--border);padding:8px 24px;display:none;align-items:center;gap:10px;flex-wrap:wrap">
-    <span style="font-size:12px;color:var(--text3)">Filtrar por sucursal:</span>
-    <select id="filtro-sucursal" onchange="aplicarFiltroSucursal()" style="padding:6px 10px;border-radius:var(--radius);border:1px solid var(--border);font-size:13px;background:#fff;color:var(--text);min-width:180px;max-width:240px">
-      <option value="">Todas las sucursales</option>
+    <div class="topbar-date" id="topbar-date"></div>
+    <select class="periodo-select" id="filtro-periodo" onchange="aplicarFiltroPeriodo()">
+      <option value="">Todos los períodos</option>
     </select>
-    <button id="btn-clear-filter" onclick="clearFiltro()" style="display:none;padding:6px 12px;border-radius:var(--radius);border:1px solid var(--border);background:#fff;color:var(--text2);font-size:12px;cursor:pointer;align-items:center;gap:5px">
-      <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;stroke-width:2;fill:none;vertical-align:-1px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      Limpiar filtro
-    </button>
-    <span id="filter-active-info" style="display:none;font-size:12px;color:var(--green-dark);background:var(--green-light);padding:3px 10px;border-radius:10px;font-weight:500"></span>
+    <button class="btn-sync" id="btn-sync" onclick="syncFromSheets()">↻ Sincronizar</button>
+    <button class="btn-checklist" onclick="openImport()">+ Cargar checklist</button>
   </div>
 
   <div class="content">
 
-    <!-- PAGE: GERENCIAL -->
+    <!-- ══ PÁGINA GERENCIAL ══════════════════════════════════ -->
     <div class="page show" id="page-gerencial">
-      <div class="card" style="margin-bottom:18px;background:var(--green-dark)">
-        <div class="card-title" style="color:#fff;margin-bottom:10px">
-          <svg viewBox="0 0 24 24" style="stroke:#8DC63F"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-          Resumen ejecutivo
-        </div>
-        <div id="ger-resumen-ejecutivo"></div>
-      </div>
-      <div class="sv-cards" id="sv-cards-gerencial"></div>
-      <div class="two-col">
-        <div class="card">
-          <div class="card-title">
-            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-            Puntaje promedio por sección
-          </div>
-          <div id="ger-sec-bars"></div>
-        </div>
-        <div class="card">
-          <div class="card-title">
-            <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-            Evolución general — últimas visitas
-          </div>
-          <div class="chart-wrap"><canvas id="chart-evol-ger"></canvas></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">
-          <svg viewBox="0 0 24 24"><path d="M12 2l3 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          Ranking de sucursales — mayor a menor puntaje
-        </div>
-        <div id="ger-ranking"></div>
-      </div>
-      <div class="card">
-        <div class="card-title collapsible-header" onclick="toggleCard('ger-pend-body',this)">
-          <span style="display:flex;align-items:center;gap:6px">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            Pendientes por área — todas las sucursales
-            <span id="ger-pend-badge" class="filter-active-badge" style="display:none"></span>
-          </span>
-          <span class="toggle-icon">▾</span>
-        </div>
-        <div class="collapsible-body" id="ger-pend-body">
-          <div class="tab-nav-bar" id="ger-pend-tabs"></div>
-          <div id="ger-pend-content"></div>
-        </div>
-      </div>
-      <div class="two-col">
+
+      <!-- HERO -->
+      <div class="hero-grid" id="ger-hero"></div>
+
+      <!-- SUPERVISORES + RANKING -->
+      <div class="col-3-1">
         <div class="card" style="margin-bottom:0">
-          <div class="card-title">
-            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-            Historial por supervisor
+          <div class="card-header">
+            <div>
+              <div class="card-title">Ejecución por supervisor</div>
+              <div class="card-subtitle" id="ger-sv-sub"></div>
+            </div>
+            <div style="font-size:10px;color:var(--ambar);font-weight:600;background:var(--ambar-light);padding:3px 8px;border-radius:8px">Meta: 85%</div>
           </div>
-          <div class="chart-wrap-lg"><canvas id="chart-hist-sv"></canvas></div>
+          <div class="sv-grid" id="ger-sv-cards"></div>
         </div>
         <div class="card" style="margin-bottom:0">
-          <div class="card-title">
-            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-            Historial por sucursal
+          <div class="card-header">
+            <div class="card-title">Ranking sucursales</div>
+            <div class="card-subtitle" id="ger-ranking-sub"></div>
           </div>
-          <div style="margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <label style="font-size:12px;color:var(--text3)">Sucursal:</label>
-            <select id="hist-suc-select" onchange="renderHistSucursal()" style="font-size:12px;padding:4px 8px;border-radius:var(--radius);border:1px solid var(--border)">
-              <option value="">Seleccioná una sucursal</option>
-            </select>
-          </div>
-          <div class="chart-wrap"><canvas id="chart-hist-suc"></canvas></div>
-          <div id="hist-suc-empty" class="empty" style="display:none">Sin visitas registradas para esta sucursal</div>
+          <div id="ger-ranking"></div>
         </div>
       </div>
-      <div class="two-col">
+
+      <div class="two-col" style="margin-top:14px">
+        <!-- EVOLUCIÓN -->
         <div class="card" style="margin-bottom:0">
-          <div class="card-title collapsible-header" onclick="toggleCard('ger-alertas-body',this)">
-            <span style="display:flex;align-items:center;gap:6px">
-              <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-              Alertas críticas — puntaje &lt; 65%
-              <span id="ger-alertas-badge" class="filter-active-badge" style="display:none"></span>
-            </span>
-            <span class="toggle-icon">▾</span>
+          <div class="card-header">
+            <div class="card-title">Evolución de ejecución</div>
+            <div class="card-subtitle">por supervisor — todas las visitas</div>
           </div>
-          <div class="collapsible-body" id="ger-alertas-body">
-            <div id="ger-alertas"></div>
-          </div>
+          <div class="chart-wrap"><canvas id="chart-evol"></canvas></div>
         </div>
+
+        <!-- PENDIENTES POR ÁREA -->
         <div class="card" style="margin-bottom:0">
-          <div class="card-title">
-            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><line x1="9" y1="22" x2="9" y2="12"/><line x1="15" y1="22" x2="15" y2="12"/></svg>
-            Sucursales sin visitar este mes
+          <div class="card-header">
+            <div class="card-title">Pendientes por área</div>
+            <div class="card-subtitle" id="ger-pend-sub"></div>
           </div>
-          <div id="ger-sinvisitar"></div>
+          <div id="ger-pendientes"></div>
         </div>
       </div>
-      <div class="two-col">
-        <div class="card" style="margin-bottom:0">
-          <div class="card-title">
-            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            Visitas esta semana
-          </div>
-          <div id="ger-semana"></div>
+
+      <!-- COBERTURA -->
+      <div class="card" style="margin-top:14px">
+        <div class="card-header">
+          <div class="card-title">Cobertura de sucursales</div>
+          <div class="card-subtitle" id="ger-cob-sub"></div>
         </div>
-        <div class="card" style="margin-bottom:0">
-          <div class="card-title collapsible-header" onclick="toggleCard('ger-pos-body',this)">
-            <span style="display:flex;align-items:center;gap:6px">
-              <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              Puntos positivos registrados
-              <span id="ger-pos-badge" class="filter-active-badge" style="display:none"></span>
-            </span>
-            <span class="toggle-icon">▾</span>
-          </div>
-          <div class="collapsible-body" id="ger-pos-body">
-            <div id="ger-positivos"></div>
-          </div>
+        <div class="tab-bar">
+          <button class="tab-btn active" onclick="switchCobTab('todas',this)">Todas</button>
+          <button class="tab-btn" onclick="switchCobTab('at',this)">A. Tessio</button>
+          <button class="tab-btn" onclick="switchCobTab('sc',this)">S. Cobreros</button>
+          <button class="tab-btn" onclick="switchCobTab('gg',this)">G. Giles</button>
+          <button class="tab-btn" onclick="switchCobTab('jb',this)">J. Botta</button>
         </div>
+        <div class="cobertura-grid" id="ger-cobertura"></div>
       </div>
-      <div class="card">
-        <div class="card-title" style="justify-content:space-between">
-          <span style="display:flex;align-items:center;gap:6px">
-            <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-            Todas las visitas registradas
-          </span>
-          <button id="btn-delete-mode" onclick="toggleDeleteMode()" style="padding:5px 12px;border-radius:var(--radius);border:1px solid var(--border);background:#fff;color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:5px">
-            <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;stroke-width:2;fill:none"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
-            Seleccionar
-          </button>
-        </div>
-        <div id="delete-toolbar" style="display:none;align-items:center;gap:10px;padding:8px 12px;background:var(--red-light);border-radius:var(--radius);margin-bottom:10px">
-          <span id="delete-count" style="font-size:13px;color:var(--red-dark);font-weight:500">0 seleccionadas</span>
-          <button onclick="selectAllVisitas()" style="font-size:12px;padding:4px 10px;border-radius:6px;border:1px solid var(--red-dark);background:#fff;color:var(--red-dark);cursor:pointer">Seleccionar todas</button>
-          <button onclick="deleteSelected()" style="font-size:12px;padding:4px 10px;border-radius:6px;border:none;background:var(--red);color:#fff;cursor:pointer;margin-left:auto">
-            <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:#fff;stroke-width:2;fill:none;vertical-align:-1px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
-            Eliminar seleccionadas
-          </button>
-        </div>
-        <div style="overflow-x:auto">
-          <table class="tbl" id="tbl-all-visitas">
-            <thead><tr>
-              <th id="th-delete" style="display:none;width:36px"><input type="checkbox" id="chk-all" onclick="toggleAllCheckboxes(this)" style="cursor:pointer"></th>
-              <th>Fecha</th><th>Supervisor</th><th>Sucursal</th>
-              <th>Imagen</th><th>Perf.Mas.</th><th>Perf.Sel.</th><th>Mostrador</th><th>Caja</th><th>Otros</th>
-              <th>General</th>
-            </tr></thead>
-            <tbody id="tbody-all"></tbody>
-          </table>
-        </div>
-      </div>
+
     </div>
 
-    <!-- PAGE: SUPERVISOR (reutilizable) -->
+    <!-- ══ PÁGINA SUPERVISOR ═════════════════════════════════ -->
     <div class="page" id="page-supervisor">
-      <div class="kpi-row" id="sv-kpis"></div>
-      <div class="card" id="sv-alertas-card" style="display:none;border-color:var(--red);border-width:1.5px">
-        <div class="card-title collapsible-header" onclick="toggleCard('sv-alertas-body',this)" style="color:var(--red)">
-          <span style="display:flex;align-items:center;gap:6px">
-            <svg viewBox="0 0 24 24" style="stroke:var(--red)"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            Alertas críticas — puntaje &lt; 65%
-          </span>
-          <span class="toggle-icon">▾</span>
+
+      <!-- KPIs -->
+      <div class="hero-grid" id="sv-hero"></div>
+
+      <div class="col-3-1">
+        <!-- SUCURSALES -->
+        <div class="card" style="margin-bottom:0">
+          <div class="card-header">
+            <div>
+              <div class="card-title" id="sv-title-sucs">Mis sucursales</div>
+              <div class="card-subtitle" id="sv-sub-sucs"></div>
+            </div>
+            <div style="font-size:10px;color:var(--ambar);font-weight:600;background:var(--ambar-light);padding:3px 8px;border-radius:8px">Meta: 85%</div>
+          </div>
+          <div class="cobertura-grid" id="sv-cobertura"></div>
         </div>
-        <div class="collapsible-body" id="sv-alertas-body">
-          <div id="sv-alertas"></div>
+
+        <!-- RANKING PROPIO -->
+        <div class="card" style="margin-bottom:0">
+          <div class="card-header">
+            <div class="card-title">Mis sucursales — ranking</div>
+          </div>
+          <div id="sv-ranking"></div>
         </div>
       </div>
-      <div class="two-col">
-        <div class="card">
-          <div class="card-title">
-            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-            Mis sucursales
+
+      <div class="two-col" style="margin-top:14px">
+        <!-- EVOLUCIÓN -->
+        <div class="card" style="margin-bottom:0">
+          <div class="card-header">
+            <div class="card-title">Evolución de puntajes</div>
+            <div class="card-subtitle">visita a visita</div>
           </div>
-          <div style="overflow-x:auto">
-            <table class="tbl" id="sv-suc-tbl">
-              <thead><tr><th>Sucursal</th><th>Última visita</th><th>Puntaje</th><th>Tendencia</th></tr></thead>
-              <tbody id="sv-suc-tbody"></tbody>
-            </table>
-          </div>
+          <div class="chart-wrap"><canvas id="chart-sv-evol"></canvas></div>
         </div>
-        <div style="display:flex;flex-direction:column;gap:18px">
-          <div class="card" style="margin-bottom:0">
-            <div class="card-title">
-              <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-              Puntaje por sección — última visita
-            </div>
-            <div id="sv-sec-bars"></div>
+
+        <!-- SECCIONES ÚLTIMA VISITA -->
+        <div class="card" style="margin-bottom:0">
+          <div class="card-header">
+            <div class="card-title">Última visita — por sección</div>
+            <div class="card-subtitle" id="sv-last-visit-meta"></div>
           </div>
-          <div class="card" style="margin-bottom:0">
-            <div class="card-title">
-              <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-              Evolución de puntajes
-            </div>
-            <div class="chart-wrap"><canvas id="chart-sv-evol"></canvas></div>
-          </div>
+          <div id="sv-sec-bars"></div>
         </div>
       </div>
-      <div class="two-col">
+
+      <!-- PENDIENTES GESTIÓN -->
+      <div class="two-col" style="margin-top:14px">
         <div class="card" style="margin-bottom:0">
-          <div class="card-title">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            Historial de visitas
-          </div>
-          <div class="timeline" id="sv-timeline"></div>
-        </div>
-        <div class="card" style="margin-bottom:0">
-          <div class="card-title">
-            <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-            Gestión de pendientes
-          </div>
-          <div style="display:flex;gap:6px;margin-bottom:12px">
-            <button onclick="switchPendTab('abiertos',this)" id="ptab-abiertos" style="padding:5px 14px;border-radius:var(--radius);border:1px solid var(--green);background:var(--green);color:#fff;font-size:12px;font-weight:500;cursor:pointer">Abiertos</button>
-            <button onclick="switchPendTab('resueltos',this)" id="ptab-resueltos" style="padding:5px 14px;border-radius:var(--radius);border:1px solid var(--border);background:#fff;color:var(--text2);font-size:12px;font-weight:500;cursor:pointer">Resueltos</button>
-          </div>
+          <div class="card-header"><div class="card-title">Pendientes abiertos</div></div>
           <div id="sv-pend-abiertos"></div>
-          <div id="sv-pend-resueltos" style="display:none"></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">
-          <svg viewBox="0 0 24 24"><path d="M12 2l3 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          Ranking de mis sucursales — mayor a menor puntaje
-        </div>
-        <div id="sv-ranking"></div>
-      </div>
-      <div class="card">
-        <div class="card-title collapsible-header" onclick="toggleCard('sv-pend-body',this)">
-          <span style="display:flex;align-items:center;gap:6px">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            Pendientes por área
-            <span id="sv-pend-badge" class="filter-active-badge" style="display:none"></span>
-          </span>
-          <span class="toggle-icon">▾</span>
-        </div>
-        <div class="collapsible-body" id="sv-pend-body">
-          <div class="tab-nav-bar" id="sv-pend-tabs"></div>
-          <div id="sv-pend-content"></div>
-        </div>
-      </div>
-      <div class="two-col">
-        <div class="card" style="margin-bottom:0">
-          <div class="card-title">
-            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-            Mi evolución de puntajes
-          </div>
-          <div class="chart-wrap-lg"><canvas id="chart-sv-hist-evol"></canvas></div>
         </div>
         <div class="card" style="margin-bottom:0">
-          <div class="card-title">
-            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-            Historial por sucursal
-          </div>
-          <div style="margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <label style="font-size:12px;color:var(--text3)">Sucursal:</label>
-            <select id="sv-hist-suc-select" onchange="renderSvHistSucursal()" style="font-size:12px;padding:4px 8px;border-radius:var(--radius);border:1px solid var(--border)">
-              <option value="">Seleccioná una sucursal</option>
-            </select>
-          </div>
-          <div class="chart-wrap"><canvas id="chart-sv-hist-suc"></canvas></div>
-          <div id="sv-hist-suc-empty" class="empty" style="display:none">Sin visitas registradas para esta sucursal</div>
+          <div class="card-header"><div class="card-title">Historial de visitas</div></div>
+          <div id="sv-timeline"></div>
         </div>
       </div>
-      <div class="two-col">
-        <div class="card" style="margin-bottom:0">
-          <div class="card-title">
-            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-            Estado administrativo por sucursal
-          </div>
-          <div style="overflow-x:auto"><div id="sv-admin-tbl"></div></div>
-        </div>
-        <div class="card" style="margin-bottom:0">
-          <div class="card-title collapsible-header" onclick="toggleCard('sv-pos-body',this)">
-            <span style="display:flex;align-items:center;gap:6px">
-              <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              Puntos positivos registrados
-            </span>
-            <span class="toggle-icon">▾</span>
-          </div>
-          <div class="collapsible-body" id="sv-pos-body">
-            <div id="sv-positivos"></div>
-          </div>
-        </div>
-      </div>
+
     </div>
 
   </div>
@@ -593,1258 +456,543 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <!-- MODAL IMPORT -->
 <div class="modal-bg" id="modal-import">
   <div class="modal">
-    <h3>Cargar checklist completado</h3>
-    <p>Pegá el texto del email que recibiste con el checklist. El sistema lo va a procesar y agregar al tablero automáticamente.</p>
-    <textarea id="import-text" placeholder="Pegá aquí el contenido del email recibido...
-Ejemplo:
-CHECKLIST DE EJECUCIÓN — OPEN FARMA
-────────────────────────────────────────
-Supervisor: Sebastián Cobreros
-Sucursal: Openfarma Remeros Plaza
-Fecha: 2026-06-17
-..."></textarea>
-    <div class="import-feedback" id="import-feedback"></div>
+    <h3>Cargar checklist</h3>
+    <p>Pegá el texto del email recibido con el checklist completo.</p>
+    <textarea id="import-text" placeholder="Pegá aquí el contenido del email..."></textarea>
+    <div class="import-msg" id="import-msg"></div>
     <div class="modal-footer">
-      <button class="btn-cancel" onclick="confirmClearData()" style="color:var(--red);border-color:var(--red-light)">Borrar datos</button>
       <button class="btn-cancel" onclick="closeImport()">Cancelar</button>
-      <button class="btn-process" onclick="processImport()">Procesar e importar</button>
+      <button class="btn-ok" onclick="processImport()">Importar</button>
     </div>
   </div>
 </div>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzaaDoZ2OBVnKZMdrrl1NKyXQ3H3rhaHawIIDZR7tlKVf_XorK-tNSaNWfylC-1iBOt/exec';
-const SESSION_KEY = 'openfarma_session';
-
-let currentUser = null;
-
-function loadSession(){
-  try {
-    const s = sessionStorage.getItem(SESSION_KEY);
-    if(s) return JSON.parse(s);
-  } catch(e){}
-  return null;
-}
-
-function saveSession(user){
-  sessionStorage.setItem(SESSION_KEY, JSON.stringify(user));
-}
-
-function clearSession(){
-  sessionStorage.removeItem(SESSION_KEY);
-}
-
-async function doLogin(){
-  const usuario  = document.getElementById('l-usuario').value.trim();
-  const password = document.getElementById('l-password').value.trim();
-  const btn = document.getElementById('login-btn');
-  const err = document.getElementById('login-err');
-  if(!usuario||!password){ err.textContent='Completá usuario y contraseña.'; err.classList.add('show'); return; }
-  btn.textContent='Verificando...'; btn.classList.add('loading'); err.classList.remove('show');
-  try {
-    const res  = await fetch(SCRIPT_URL, {
-      method:'POST',
-      body: JSON.stringify({action:'login', usuario, password}),
-      redirect: 'follow',
-    });
-    const text = await res.text();
-    let data;
-    try { data = JSON.parse(text); } catch(e){ throw new Error('Respuesta inválida del servidor'); }
-    if(data.status==='ok'){
-      currentUser = data;
-      saveSession(data);
-      document.getElementById('login-overlay').classList.add('hide');
-      document.querySelector('.sb-user .uname').textContent = data.nombre;
-      document.querySelector('.sb-user .urole').textContent = data.rol==='gerencia'?'Gerencia — acceso total':'Supervisor';
-      renderGerencial();
-      syncFromSheets();
-      setInterval(()=>{ if(currentUser) syncFromSheets(); }, 5*60*1000);
-    } else {
-      err.textContent = data.msg || 'Usuario o contraseña incorrectos.';
-      err.classList.add('show');
-      btn.textContent='Ingresar'; btn.classList.remove('loading');
-    }
-  } catch(e){
-    err.textContent='Error de conexión: '+e.message;
-    err.classList.add('show');
-    btn.textContent='Ingresar'; btn.classList.remove('loading');
-  }
-}
-
-function doLogout(){
-  clearSession();
-  currentUser = null;
-  document.getElementById('l-usuario').value='';
-  document.getElementById('l-password').value='';
-  document.getElementById('login-btn').textContent='Ingresar';
-  document.getElementById('login-btn').classList.remove('loading');
-  document.getElementById('login-err').classList.remove('show');
-  document.getElementById('login-overlay').classList.remove('hide');
-}
-
+// ── CONSTANTES ─────────────────────────────────────────────
 const SUCURSALES = {
   AT:['Openfarma Orien','Openfarma Beiro','Openfarma Belgrano','Openfarma Gran Rural','Perles','Openfarma Sucre','Openfarma Bikaner','Openfarma Gran Contemporánea','Openfarma Constitución'],
   SC:['Openfarma Remeros Plaza','Openfarma Libertador (Acasusso)','Openfarma Don Torcuato','Openfarma Vicente López','Openfarma Martinez','Openfarma Iriondo (San Fernando)','Openfarma Farmator (Torcuato 2)','Open Martinez','Openfarma Victoria','Openfarma Villa Martelli (Open Mitre)','Openfarma Tigre (Nva Sarmiento)'],
   GG:['Openfarma Torres del Sol (Paraza)','Openfarma Tortugas (Mispartei)','Openfarma Alto Hey','Openfarma Del Concord'],
   JB:['Openfarma Escobar (Zanotepa)','Open Paseo Pilar (Pierzapa)','Openfarma Paseo Champagnat (Nuevo Paseo)','Openfarma La Escala (Misparza)','Openfarma Vila Terra (Villanueva)','Openfarma Ven Street Center (Farmadique)','Openfarma Benavidez'],
 };
-const SV_NAMES = {AT:'Ariel Tessio',SC:'Sebastián Cobreros',GG:'Graciela Giles',JB:'Julio Botta'};
-const SEC_KEYS = ['s1','s2','s2b','s3','s4','s4b'];
-const SEC_LABELS = {s1:'Imagen exterior',s2:'Perf. Masiva',s2b:'Perf. Selectiva',s3:'Mostrador',s4:'Sector Caja',s4b:'Otros sectores'};
+const SV_NAMES  = {AT:'Ariel Tessio',SC:'Sebastián Cobreros',GG:'Graciela Giles',JB:'Julio Botta'};
+const SEC_KEYS  = ['s1','s2','s2b','s3','s4','s4b'];
+const SEC_LABELS= {s1:'Imagen exterior',s2:'Perf. Masiva',s2b:'Perf. Selectiva',s3:'Mostrador',s4:'Sector Caja',s4b:'Otros sectores'};
+const META = 85;
+const STORAGE_KEY = 'openfarma_v6';
+const SCRIPT_URL  = 'https://script.google.com/macros/s/AKfycbzaaDoZ2OBVnKZMdrrl1NKyXQ3H3rhaHawIIDZR7tlKVf_XorK-tNSaNWfylC-1iBOt/exec';
+const SHEETS_ID   = '16WlQI5KIBOHkuSazxcIxFLMINaJAtHhnp2ZETjXjFKI';
 
-// DATA STORE — con persistencia localStorage
-const STORAGE_KEY = 'openfarma_visitas_v5';
-const DEMO_VISITAS = [];
-
-function loadVisitas(){
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if(saved){ const parsed = JSON.parse(saved); if(Array.isArray(parsed)&&parsed.length) return parsed; }
-  } catch(e){}
-  return JSON.parse(JSON.stringify(DEMO_VISITAS));
-}
-
-function saveVisitas(){
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(visitas)); } catch(e){}
-}
-
-let visitas = loadVisitas();
-
+// ── STATE ──────────────────────────────────────────────────
+let visitas = [];
+let currentUser = null;
 let currentSv = null;
+let filtroPeriodo = (() => { const h=new Date(); return h.getFullYear()+'-'+String(h.getMonth()+1).padStart(2,'0'); })();
+let allPendientes = [];
 let evolChart = null;
-let evolGerChart = null;
+let svEvolChart = null;
+let cobTab = 'todas';
 
-function scoreColor(s){
-  if(s===null) return 'var(--gray)';
-  return s>=75?'var(--green-mid)':s>65?'var(--amber)':'var(--red)';
+// ── HELPERS ────────────────────────────────────────────────
+const avg = arr => { const v=arr.filter(x=>x!==null&&!isNaN(x)); return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length*10)/10:null; };
+const visitaAvg = v => { const s=SEC_KEYS.map(k=>v.secciones&&v.secciones[k]!==null?v.secciones[k]:null).filter(x=>x!==null); return s.length?Math.round(avg(s)*10)/10:null; };
+const svVisitas = k => visitas.filter(v=>v.sv===k).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+const svScore   = k => { const vv=visitasFiltradas(svVisitas(k)); const scores=vv.map(visitaAvg).filter(x=>x!==null); return scores.length?Math.round(avg(scores)*10)/10:null; };
+const scoreColor = s => s===null?'var(--texto3)':s>=META?'var(--verde)':s>=(META-10)?'var(--ambar)':'var(--rojo)';
+const badgeClass = s => s===null?'b-na':s>=META?'b-ok':s>=(META-10)?'b-warn':'b-bad';
+const tendencia = vv => { if(vv.length<2) return null; const s=visitaAvg(vv[0]),p=visitaAvg(vv[1]); return (s!==null&&p!==null)?Math.round(s-p):null; };
+const trendHtml = d => d===null?'':d>0?`<span class="trend-up">↑ +${d}%</span>`:d<0?`<span class="trend-down">↓ ${d}%</span>`:`<span style="color:var(--texto3)">→ sin cambio</span>`;
+const fmtDate = d => { if(!d) return '—'; if(typeof d==='string'&&d.startsWith('Date(')){ const p=d.replace('Date(','').replace(')','').split(','); return String(p[2]).padStart(2,'0')+'/'+String(parseInt(p[1])+1).padStart(2,'0')+'/'+p[0]; } if(typeof d==='string'&&d.includes('-')){ const p=d.split('T')[0].split('-'); return p[2]+'/'+p[1]+'/'+p[0]; } return String(d); };
+const diasDesde = d => { if(!d) return null; let dt; if(typeof d==='string'&&d.includes('-')){ const p=d.split('-'); dt=new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2])); } else return null; if(isNaN(dt.getTime())) return null; const diff=Math.floor((new Date()-dt)/(86400000)); return diff===0?'hoy':diff===1?'ayer':diff<0?'hoy':`hace ${diff}d`; };
+
+function visitasFiltradas(vv) {
+  if(!filtroPeriodo) return vv;
+  return vv.filter(v=>v.fecha&&String(v.fecha).startsWith(filtroPeriodo));
 }
-function badgeClass(s){
-  if(s===null) return 'badge-na';
-  return s>=75?'badge-ok':s>65?'badge-warn':'badge-bad';
-}
-function scoreLabel(s){
-  if(s===null) return '—';
-  return Math.round(s)+'%';
-}
-function avg(arr){ const v=arr.filter(x=>x!==null); return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length*10)/10:null; }
-function visitaAvg(v){ return avg(SEC_KEYS.map(k=>v.secciones[k]||null)); }
-function fmtDate(d){
-  if(!d) return '—';
-  // Handle Google Sheets Date object format: Date(2026,5,17) — months are 0-indexed
-  if(typeof d === 'string' && d.startsWith('Date(')){
-    const parts = d.replace('Date(','').replace(')','').split(',');
-    const year=parts[0], month=String(parseInt(parts[1])+1).padStart(2,'0'), day=String(parts[2]).padStart(2,'0');
-    return `${day}/${month}/${year}`;
+
+// ── SESSION ────────────────────────────────────────────────
+function saveSession(u){ try{localStorage.setItem('of_session',JSON.stringify(u));}catch(e){} }
+function loadSession(){ try{const s=localStorage.getItem('of_session'); return s?JSON.parse(s):null;}catch(e){return null;} }
+function clearSession(){ try{localStorage.removeItem('of_session');}catch(e){} }
+function saveVisitas(){ try{localStorage.setItem(STORAGE_KEY,JSON.stringify(visitas));}catch(e){} }
+function loadVisitas(){ try{const s=localStorage.getItem(STORAGE_KEY); return s?JSON.parse(s):[];}catch(e){return [];} }
+
+// ── LOGIN / LOGOUT ─────────────────────────────────────────
+async function doLogin(){
+  const usuario=document.getElementById('l-usuario').value.trim();
+  const password=document.getElementById('l-password').value.trim();
+  const btn=document.getElementById('login-btn');
+  const err=document.getElementById('login-err');
+  if(!usuario||!password){ err.textContent='Ingresá usuario y contraseña.'; err.classList.add('show'); return; }
+  btn.textContent='Verificando...'; err.classList.remove('show');
+  try {
+    const res=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'login',usuario,password}),redirect:'follow'});
+    const text=await res.text();
+    let data; try{data=JSON.parse(text);}catch(e){throw new Error('Respuesta inválida');}
+    if(data.status==='ok'){
+      currentUser=data; saveSession(data);
+      document.getElementById('login-overlay').classList.add('hide');
+      document.getElementById('sb-user-name').textContent=data.nombre;
+      document.getElementById('sb-user-role').textContent=data.rol==='gerencia'?'Gerencia — acceso total':'Supervisor';
+      visitas=loadVisitas();
+      renderAll();
+      syncFromSheets();
+      setInterval(()=>{ if(currentUser) syncFromSheets(); },5*60*1000);
+    } else {
+      err.textContent=data.msg||'Usuario o contraseña incorrectos.';
+      err.classList.add('show');
+    }
+  } catch(e){
+    err.textContent='Error de conexión: '+e.message;
+    err.classList.add('show');
   }
-  // Handle JS Date object
-  if(d instanceof Date){
-    return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
+  btn.textContent='Ingresar →';
+}
+function doLogout(){ clearSession(); currentUser=null; location.reload(); }
+
+// ── SYNC ───────────────────────────────────────────────────
+async function syncFromSheets(){
+  const btn=document.getElementById('btn-sync');
+  if(btn){ btn.textContent='Sincronizando...'; btn.disabled=true; }
+  try {
+    const url=`https://docs.google.com/spreadsheets/d/${SHEETS_ID}/gviz/tq?tqx=out:json&sheet=Visitas%20Openfarma&t=${Date.now()}`;
+    const res=await fetch(url);
+    const text=await res.text();
+    const json=JSON.parse(text.replace(/^[^(]+\(/,'').replace(/\);?$/,''));
+    const rows=json.table.rows||[];
+    const nuevas=rows.map(parseSheetsRow).filter(Boolean);
+    if(nuevas.length>0){ visitas=[]; nuevas.forEach(n=>visitas.push(n)); saveVisitas(); }
+    updateSidebarScores();
+    populateFiltroPeriodo();
+    renderAll();
+    loadAllPendientes();
+    if(btn){ btn.textContent='✓ Actualizado'; setTimeout(()=>{ btn.textContent='↻ Sincronizar'; btn.disabled=false; },2000); }
+  } catch(e){
+    if(btn){ btn.textContent='↻ Sincronizar'; btn.disabled=false; }
+    console.warn('Sync error:',e);
   }
-  // Handle YYYY-MM-DD string
-  if(typeof d === 'string' && d.includes('-')){
-    const p=d.split('T')[0].split('-');
-    return p[2]+'/'+p[1]+'/'+p[0];
-  }
-  // Handle DD/MM/YYYY already
-  if(typeof d === 'string' && d.includes('/')) return d;
-  return String(d);
 }
 
-function svVisitas(svKey){ return visitas.filter(v=>v.sv===svKey).sort((a,b)=>b.fecha.localeCompare(a.fecha)); }
-function lastVisita(svKey){ const vv=svVisitas(svKey); return vv.length?vv[0]:null; }
-function svAvgScore(svKey){ const vv=svVisitas(svKey); if(!vv.length)return null; return avg(vv.map(visitaAvg)); }
-
-// ── COLLAPSIBLE ────────────────────────────────────────
-function toggleCard(bodyId, header){
-  const body = document.getElementById(bodyId);
-  if(!body) return;
-  const collapsed = body.classList.toggle('collapsed');
-  header.classList.toggle('collapsed', collapsed);
+function parseSheetsRow(row){
+  const c=row.c;
+  const val=i=>(c[i]&&c[i].v!==null&&c[i].v!==undefined)?c[i].v:null;
+  const num=i=>{ const v=val(i); return v!==null&&v!==''?parseFloat(v)||null:null; };
+  const str=i=>{ const v=val(i); if(v===null) return ''; if(typeof v==='string'&&v.startsWith('Date(')){ const p=v.replace('Date(','').replace(')','').split(','); return `${p[0]}-${String(parseInt(p[1])+1).padStart(2,'0')}-${String(p[2]).padStart(2,'0')}`; } return String(v).trim(); };
+  const sv=str(0), sucursal=str(2), fechaRaw=str(3);
+  if(!sv||!sucursal||!fechaRaw) return null;
+  let fecha=fechaRaw;
+  if(fecha.includes('/')) fecha=fecha.split('/').reverse().join('-');
+  const obsRaw=str(12);
+  const pendRaw=str(13);
+  const adminRaw=str(14);
+  const admin={};
+  if(adminRaw) adminRaw.split(' | ').forEach(p=>{ const [k,v]=p.split(': '); if(k) admin[k.trim()]=v?.trim(); });
+  return {
+    sv, sucursal, fecha,
+    encargado:str(4), encargado_presente:str(5),
+    secciones:{s1:num(6),s2:num(7),s2b:num(8),s3:num(9),s4:num(10),s4b:num(11)},
+    obs:obsRaw?obsRaw.split(' | ').filter(Boolean):[],
+    pendientes:pendRaw?pendRaw.split(' | ').filter(Boolean).map(t=>({texto:t,tag:'tag-trd'})):[],
+    admin, puntos_positivos:str(15), _fromSheets:true
+  };
 }
 
-// ── FILTRO GLOBAL POR SUCURSAL ─────────────────────────
-let filtroSucursal = '';
-// Default: current month
-const _hoy = new Date();
-let filtroPeriodo = _hoy.getFullYear() + '-' + String(_hoy.getMonth()+1).padStart(2,'0');''
+async function loadAllPendientes(){
+  try {
+    const res=await fetch(SCRIPT_URL+'?action=getAllPendientes');
+    const text=await res.text();
+    const data=JSON.parse(text);
+    if(data.status==='ok') allPendientes=data.pendientes||[];
+  } catch(e){ console.warn('Pendientes error:',e); }
+}
 
+// ── PERIODO FILTER ─────────────────────────────────────────
 function populateFiltroPeriodo(){
-  const sel = document.getElementById('filtro-periodo');
+  const sel=document.getElementById('filtro-periodo');
   if(!sel) return;
-  const current = sel.value;
-  // Get unique months from all visitas
-  const meses = [...new Set(visitas.map(v=>{
-    const f = v.fecha ? String(v.fecha).substring(0,7) : null;
-    return f;
-  }).filter(Boolean))].sort().reverse();
-  
-  sel.innerHTML = '<option value="">Todos los períodos</option>';
-  meses.forEach(m=>{
-    const [y,mo] = m.split('-');
-    const nombres = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-    const label = `${nombres[parseInt(mo)]} ${y}`;
-    const o = document.createElement('option');
-    o.value = m; o.textContent = label; o.selected = (m === current);
-    sel.appendChild(o);
+  const current=sel.value||filtroPeriodo;
+  const meses=[...new Set(visitas.map(v=>v.fecha?String(v.fecha).substring(0,7):null).filter(Boolean))].sort().reverse();
+  const nombres=['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  sel.innerHTML='<option value="">Todos los períodos</option>';
+  meses.forEach(m=>{ const [y,mo]=m.split('-'); const o=document.createElement('option'); o.value=m; o.textContent=nombres[parseInt(mo)]+' '+y; o.selected=(m===current); sel.appendChild(o); });
+}
+function aplicarFiltroPeriodo(){
+  filtroPeriodo=document.getElementById('filtro-periodo').value;
+  updateSidebarScores();
+  renderAll();
+}
+
+function updateSidebarScores(){
+  ['AT','SC','GG','JB'].forEach(k=>{
+    const el=document.getElementById('sb-pct-'+k);
+    if(!el) return;
+    const sc=svScore(k);
+    el.textContent=sc!==null?sc+'%':'—';
+    el.className='sb-pct '+(sc===null?'na':sc>=META?'ok':sc>=(META-10)?'warn':'bad');
   });
 }
 
-function aplicarFiltroPeriodo(){
-  filtroPeriodo = document.getElementById('filtro-periodo').value;
-  const page = document.querySelector('.page.show');
-  if(page && page.id==='page-supervisor' && currentSv) renderSvPage(currentSv);
-  else renderGerencial();
-}
-
-function getSucursalesPermitidas(){
-  // En vista de supervisor: solo sus sucursales asignadas
-  // En vista gerencial: todas las que tienen visitas
-  const page = document.querySelector('.page.show');
-  if(page && page.id==='page-supervisor' && currentSv){
-    return SUCURSALES[currentSv] || [];
-  }
-  return [...new Set(visitas.map(v=>v.sucursal))].sort();
-}
-
-function populateFiltroSucursal(){
-  const sel = document.getElementById('filtro-sucursal');
-  if(!sel) return;
-  const current = sel.value;
-  const permitidas = getSucursalesPermitidas();
-  // If current filter is not in permitted list, reset it
-  if(current && !permitidas.includes(current)){
-    filtroSucursal = '';
-    const btn = document.getElementById('btn-clear-filter');
-    if(btn) btn.style.display='none';
-  }
-  sel.innerHTML = '<option value="">Todas las sucursales</option>';
-  permitidas.forEach(s=>{ const o=document.createElement('option'); o.textContent=s; o.selected=(s===filtroSucursal); sel.appendChild(o); });
-}
-
-function aplicarFiltroSucursal(){
-  filtroSucursal = document.getElementById('filtro-sucursal').value;
-  const btn  = document.getElementById('btn-clear-filter');
-  const info = document.getElementById('filter-active-info');
-  if(btn)  btn.style.display  = filtroSucursal ? 'flex' : 'none';
-  if(info){ info.style.display = filtroSucursal ? 'inline' : 'none'; info.textContent = filtroSucursal ? 'Mostrando: '+filtroSucursal : ''; }
-  const page = document.querySelector('.page.show');
-  if(page&&page.id==='page-supervisor'&&currentSv) renderSvPage(currentSv);
-  else renderGerencial();
-}
-
-function clearFiltro(){
-  filtroSucursal='';
-  const sel=document.getElementById('filtro-sucursal'); if(sel) sel.value='';
-  const btn=document.getElementById('btn-clear-filter'); if(btn) btn.style.display='none';
-  const info=document.getElementById('filter-active-info'); if(info) info.style.display='none';
+// ── RENDER ALL ─────────────────────────────────────────────
+function renderAll(){
   const page=document.querySelector('.page.show');
   if(page&&page.id==='page-supervisor'&&currentSv) renderSvPage(currentSv);
   else renderGerencial();
 }
 
-function visitasFiltradas(vv){
-  // In supervisor view: only show their assigned sucursales
-  const page = document.querySelector('.page.show');
-  let filtered = vv;
-  if(page && page.id==='page-supervisor' && currentSv){
-    const permitidas = SUCURSALES[currentSv] || [];
-    filtered = filtered.filter(v=>permitidas.includes(v.sucursal));
-  }
-  // Period filter
-  if(filtroPeriodo){
-    filtered = filtered.filter(v=>v.fecha && String(v.fecha).startsWith(filtroPeriodo));
-  }
-  // Sucursal filter
-  if(!filtroSucursal) return filtered;
-  return filtered.filter(v=>v.sucursal===filtroSucursal);
-}
+// ══════════════════════════════════════════════════════════
+// GERENCIAL
+// ══════════════════════════════════════════════════════════
 function renderGerencial(){
-  populateFiltroPeriodo();
-  populateFiltroSucursal();
-  const vf = visitasFiltradas(visitas);
-  renderResumenEjecutivo(vf);
-  renderSvCards(vf);
-  renderGerSecBars(vf);
-  renderAllVisitasTable(vf);
-  renderEvolGer(vf);
+  const vf=visitasFiltradas(visitas);
+  renderGerHero(vf);
+  renderGerSvCards(vf);
   renderGerRanking(vf);
-  const allPend = vf.flatMap(v=>v.pendientes.map(p=>({...p, suc:v.sucursal+' ('+SV_NAMES[v.sv]+')'})));
-  renderPendientesTabs(allPend, 'ger-pend-tabs', 'ger-pend-content', 'ger');
-  renderHistSupervisores(vf);
-  populateHistSucSelect();
-  renderGerAlertas(vf);
-  renderGerSinVisitar();
-  renderGerSemana(vf);
-  renderGerPositivos(vf);
-  ['ger-alertas-badge','ger-pend-badge','ger-pos-badge'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el){ el.style.display=filtroSucursal?'inline':'none'; el.textContent=filtroSucursal?filtroSucursal:''; }
-  });
+  renderGerEvol(vf);
+  renderGerPendientes(vf);
+  renderGerCobertura(vf);
 }
 
-function renderGerAlertas(vf){
-  const sorted = [...(vf||visitas)].sort((a,b)=>b.fecha.localeCompare(a.fecha));
-  const criticas = sorted.filter(v=>{ const s=visitaAvg(v); return s!==null && s<65; }).slice(0,10);
-  document.getElementById('ger-alertas').innerHTML = criticas.length
-    ? criticas.map(v=>{
-        const s=visitaAvg(v);
-        return `<div class="pend-item" style="background:var(--red-light);margin-bottom:6px">
-          <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:var(--red);stroke-width:2;fill:none;flex-shrink:0;margin-top:1px"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          <div style="flex:1">
-            <div class="pend-text"><strong>${v.sucursal}</strong> — ${SV_NAMES[v.sv]}</div>
-            <div style="font-size:11px;color:var(--text3);margin-top:2px">${fmtDate(v.fecha)} · Cumplimiento: <strong style="color:var(--red)">${Math.round(s)}%</strong>${v.obs.length?' · '+v.obs[0]:''}</div>
-          </div>
-          <span class="badge badge-bad">${Math.round(s)}%</span>
-        </div>`;
-      }).join('')
-    : '<div class="empty">Sin alertas críticas registradas 🎉</div>';
-}
+function renderGerHero(vf){
+  const scores=vf.map(visitaAvg).filter(x=>x!==null);
+  const avgAll=scores.length?Math.round(avg(scores)*10)/10:null;
+  const visitadas=new Set(vf.map(v=>v.sucursal)).size;
+  const totalSucs=Object.values(SUCURSALES).flat().length;
+  const cobertura=Math.round(visitadas/totalSucs*100);
+  const pendTotal=vf.reduce((a,v)=>a+v.pendientes.length,0);
+  const alertas=vf.filter(v=>{const s=visitaAvg(v);return s!==null&&s<META-20;}).length;
 
-function renderGerSinVisitar(){
-  const thisMonth = new Date().toISOString().slice(0,7);
-  const allSucs = Object.entries(SUCURSALES).flatMap(([sv,subs])=>subs.map(s=>({s,sv})));
-  const sinVisitar = allSucs.filter(({s})=>{
-    return !visitas.some(v=>v.sucursal===s && v.fecha.startsWith(thisMonth));
-  });
-  document.getElementById('ger-sinvisitar').innerHTML = sinVisitar.length
-    ? sinVisitar.map(({s,sv})=>`
-        <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f0f0ee;font-size:13px">
-          <div style="flex:1;font-weight:500">${s}</div>
-          <div style="font-size:11px;color:var(--text3)">${SV_NAMES[sv]}</div>
-          <span class="badge badge-na">Sin visitar</span>
-        </div>`).join('')
-    : '<div class="empty">Todas las sucursales visitadas este mes 🎉</div>';
-}
+  // Compare with previous period
+  const prevVf=getPrevPeriodVisitas();
+  const prevScores=prevVf.map(visitaAvg).filter(x=>x!==null);
+  const prevAvg=prevScores.length?Math.round(avg(prevScores)*10)/10:null;
+  const diffAvg=avgAll!==null&&prevAvg!==null?Math.round(avgAll-prevAvg):null;
 
-function renderGerSemana(vf){
-  const hace7 = new Date(); hace7.setDate(hace7.getDate()-7);
-  const fechaMin = hace7.toISOString().split('T')[0];
-  const recientes = [...(vf||visitas)].filter(v=>v.fecha>=fechaMin).sort((a,b)=>b.fecha.localeCompare(a.fecha));
-  document.getElementById('ger-semana').innerHTML = recientes.length
-    ? recientes.map(v=>{
-        const s=visitaAvg(v);
-        return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f0f0ee;font-size:13px">
-          <div style="flex:1;font-weight:500">${v.sucursal}</div>
-          <div style="font-size:11px;color:var(--text3)">${SV_NAMES[v.sv]}</div>
-          <div style="font-size:11px;color:var(--text3)">${fmtDate(v.fecha)}</div>
-          <span class="badge ${badgeClass(s)}">${scoreLabel(s)}</span>
-        </div>`;
-      }).join('')
-    : '<div class="empty">Sin visitas en los últimos 7 días</div>';
-}
+  const metaPct=avgAll!==null?Math.min(100,Math.round(avgAll/META*100)):0;
 
-function renderGerPositivos(vf){
-  const conPositivos = [...(vf||visitas)].filter(v=>v.puntos_positivos&&v.puntos_positivos.trim()).sort((a,b)=>b.fecha.localeCompare(a.fecha)).slice(0,8);
-  document.getElementById('ger-positivos').innerHTML = conPositivos.length
-    ? conPositivos.map(v=>`
-        <div style="background:var(--green-light);border-radius:var(--radius);padding:10px 12px;margin-bottom:8px;border-left:3px solid var(--green-mid)">
-          <div style="font-size:13px;color:var(--text)">${v.puntos_positivos}</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:4px">${v.sucursal} · ${SV_NAMES[v.sv]} · ${fmtDate(v.fecha)}</div>
-        </div>`).join('')
-    : '<div class="empty">Sin puntos positivos registrados aún</div>';
-}
-
-function renderSvAlertas(svKey){
-  const vv = svVisitas(svKey);
-  const criticas = [...vv].sort((a,b)=>b.fecha.localeCompare(a.fecha))
-    .filter(v=>{ const s=visitaAvg(v); return s!==null && s<65; })
-    .slice(0,8);
-
-  const card = document.getElementById('sv-alertas-card');
-  if(!card) return;
-
-  if(!criticas.length){
-    card.style.display='none';
-    return;
-  }
-
-  card.style.display='block';
-  document.getElementById('sv-alertas').innerHTML = criticas.map(v=>{
-    const s = visitaAvg(v);
-    return `<div class="pend-item" style="background:var(--red-light);margin-bottom:6px">
-      <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:var(--red);stroke-width:2;fill:none;flex-shrink:0;margin-top:1px"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      <div style="flex:1">
-        <div class="pend-text"><strong>${v.sucursal}</strong></div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px">${fmtDate(v.fecha)} (${diasDesde(v.fecha)}) · Cumplimiento: <strong style="color:var(--red)">${Math.round(s)}%</strong>${v.obs&&v.obs.length?' · '+v.obs[0]:''}</div>
-      </div>
-      <span class="badge badge-bad">${Math.round(s)}%</span>
+  document.getElementById('ger-hero').innerHTML=`
+    <div class="hero-card verde">
+      <div class="hero-label">Cumplimiento promedio</div>
+      <div class="hero-val">${avgAll!==null?avgAll+'%':'—'}</div>
+      <div class="hero-sub">${diffAvg!==null?trendHtml(diffAvg)+' vs período anterior':'todas las visitas'}</div>
+      <div class="meta-line"><div class="meta-fill" style="width:${metaPct}%"></div></div>
+    </div>
+    <div class="hero-card azul">
+      <div class="hero-label">Sucursales visitadas</div>
+      <div class="hero-val">${visitadas}<span style="font-size:18px;font-weight:500;color:var(--texto3)">/${totalSucs}</span></div>
+      <div class="hero-sub">${cobertura}% de cobertura</div>
+    </div>
+    <div class="hero-card ${pendTotal>0?'ambar':'verde'}">
+      <div class="hero-label">Pendientes abiertos</div>
+      <div class="hero-val">${pendTotal}</div>
+      <div class="hero-sub">${pendTotal>0?'requieren seguimiento':'sin pendientes 🎉'}</div>
+    </div>
+    <div class="hero-card ${alertas>0?'rojo':'verde'}">
+      <div class="hero-label">Alertas críticas</div>
+      <div class="hero-val">${alertas}</div>
+      <div class="hero-sub">${alertas>0?`sucursales < ${META-20}%`:'todo en orden'}</div>
     </div>`;
-  }).join('');
+  document.getElementById('ger-sv-sub').textContent=`${vf.length} visitas en el período seleccionado`;
 }
 
-function renderSvEncargados(svKey){
-  const el = document.getElementById('sv-encargados');
-  if(!el) return;
-  const vv = svVisitas(svKey);
-  el.innerHTML = vv.length
-    ? vv.slice(0,10).map(v=>{
-        const presente = v.encargado_presente||null;
-        const nombre   = v.encargado||'—';
-        const bClass   = presente==='Si'?'badge-ok':presente==='No'?'badge-bad':'badge-na';
-        const bLabel   = presente==='Si'?'Presente':presente==='No'?'Ausente':'Sin dato';
-        return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f0f0ee;font-size:13px">
-          <div style="flex:1;font-weight:500">${v.sucursal}</div>
-          <div style="font-size:11px;color:var(--text3);width:110px">${nombre}</div>
-          <div style="font-size:11px;color:var(--text3)">${fmtDate(v.fecha)}</div>
-          <span class="badge ${bClass}">${bLabel}</span>
-        </div>`;
-      }).join('')
-    : '<div class="empty">Sin visitas registradas</div>';
+function getPrevPeriodVisitas(){
+  if(!filtroPeriodo) return [];
+  const [y,m]=filtroPeriodo.split('-').map(Number);
+  const prev=m===1?`${y-1}-12`:`${y}-${String(m-1).padStart(2,'0')}`;
+  return visitas.filter(v=>v.fecha&&String(v.fecha).startsWith(prev));
 }
 
-function renderSvAdminTbl(svKey){
-  const vv = svVisitas(svKey);
-  const ADMIN_KEYS = ['Cajas','Depósitos','Facturas','Recetas'];
-  if(!vv.length){ document.getElementById('sv-admin-tbl').innerHTML='<div class="empty">Sin visitas registradas</div>'; return; }
-  const sorted = SUCURSALES[svKey].map(suc=>{
-    const ultimas = vv.filter(v=>v.sucursal===suc).sort((a,b)=>b.fecha.localeCompare(a.fecha));
-    return {suc, v: ultimas[0]||null};
-  }).filter(x=>x.v);
-  if(!sorted.length){ document.getElementById('sv-admin-tbl').innerHTML='<div class="empty">Sin visitas registradas</div>'; return; }
+function renderGerSvCards(vf){
+  const keys=['AT','SC','GG','JB'];
+  document.getElementById('ger-sv-cards').innerHTML=keys.map(k=>{
+    const vvAll=svVisitas(k);
+    const vvF=visitasFiltradas(vvAll);
+    const scores=vvF.map(visitaAvg).filter(x=>x!==null);
+    const sc=scores.length?Math.round(avg(scores)*10)/10:null;
+    const diff=tendencia(vvF);
+    const last=vvF.length?vvF[0]:null;
+    const noVisits=vvF.length===0;
+    const colScore=scoreColor(sc);
+    const visitadas=new Set(vvF.map(v=>v.sucursal)).size;
+    const total=SUCURSALES[k].length;
 
-  const colores = (val)=>{
-    if(!val||val==='—') return 'badge-na';
-    const v = String(val).toLowerCase();
-    if(v==='cumple'||v==='sí'||v==='si') return 'badge-ok';
-    if(v==='parcial') return 'badge-warn';
-    if(v==='no cumple'||v==='no') return 'badge-bad';
-    return 'badge-na';
-  };
-  const label = (val)=>{
-    if(!val||val==='—') return '—';
-    const v = String(val).toLowerCase();
-    if(v==='cumple'||v==='sí'||v==='si') return 'Cumple';
-    if(v==='parcial') return 'Parcial';
-    if(v==='no cumple'||v==='no') return 'No cumple';
-    return val;
-  };
+    if(noVisits) return `
+      <div class="sv-card alerta" onclick="showSvPage('${k}',null)">
+        <div class="sv-name">${SV_NAMES[k]}</div>
+        <div class="sv-meta">${total} sucursales asignadas</div>
+        <div style="font-size:13px;font-weight:700;color:var(--rojo);margin:12px 0">Sin visitas en el período</div>
+        <span class="badge b-bad">⚠ Requiere atención</span>
+      </div>`;
 
-  let html = `<table class="tbl"><thead><tr><th>Sucursal</th>${ADMIN_KEYS.map(k=>'<th>'+k+'</th>').join('')}</tr></thead><tbody>`;
-  sorted.forEach(({suc,v})=>{
-    const ad = v.admin||{};
-    html += `<tr><td class="suc-name">${suc}</td>${ADMIN_KEYS.map(k=>{
-      const val = ad[k]||'—';
-      return `<td><span class="badge ${colores(val)}">${label(val)}</span></td>`;
-    }).join('')}</tr>`;
-  });
-  html += '</tbody></table>';
-  document.getElementById('sv-admin-tbl').innerHTML = html;
-}
+    const secBars=SEC_KEYS.map(sk=>{
+      const vals=vvF.map(v=>v.secciones[sk]).filter(x=>x!==null);
+      const sa=vals.length?Math.round(avg(vals)*10)/10:null;
+      return sa!==null?`
+        <div class="bar-row">
+          <div class="bar-label">${SEC_LABELS[sk]}</div>
+          <div class="bar-track" style="position:relative">
+            <div class="bar-fill" style="width:${sa}%;background:${scoreColor(sa)}"></div>
+          </div>
+          <div class="bar-val" style="color:${scoreColor(sa)}">${sa}%</div>
+        </div>`:''
+    }).filter(Boolean).join('');
 
-function renderSvPositivos(svKey){
-  const vv = svVisitas(svKey).filter(v=>v.puntos_positivos&&v.puntos_positivos.trim());
-  document.getElementById('sv-positivos').innerHTML = vv.length
-    ? vv.slice(0,6).map(v=>`
-        <div style="background:var(--green-light);border-radius:var(--radius);padding:10px 12px;margin-bottom:8px;border-left:3px solid var(--green-mid)">
-          <div style="font-size:13px;color:var(--text)">${v.puntos_positivos}</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:4px">${v.sucursal} · ${fmtDate(v.fecha)}</div>
-        </div>`).join('')
-    : '<div class="empty">Sin puntos positivos registrados aún</div>';
-}
-
-const AREAS = [
-  {key:'mant',  label:'Mantenimiento', tag:'tag-mant', icon:'🔧'},
-  {key:'sis',   label:'Sistemas',      tag:'tag-sis',  icon:'💻'},
-  {key:'mkt',   label:'Marketing',     tag:'tag-mkt',  icon:'📢'},
-  {key:'trd',   label:'Trade',         tag:'tag-trd',  icon:'🏪'},
-  {key:'admin', label:'Administración',tag:'tag-blue',  icon:'📋'},
-  {key:'rrhh',  label:'RRHH',          tag:'tag-na',   icon:'👥'},
-  {key:'abast', label:'Abastecimiento',tag:'tag-na',   icon:'📦'},
-  {key:'suc',   label:'Sucursal',      tag:'tag-na',   icon:'🏠'},
-];
-
-function groupPendientesByArea(pendList){
-  const groups = {};
-  AREAS.forEach(a=>{ groups[a.key]=[]; });
-  groups['otros'] = [];
-  pendList.forEach(p=>{
-    const areaKey = p.tag ? p.tag.replace('tag-','') : 'otros';
-    if(groups[areaKey] !== undefined) groups[areaKey].push(p);
-    else groups['otros'].push(p);
-  });
-  return groups;
-}
-
-function renderPendientesTabs(pendList, tabsId, contentId, prefix){
-  const groups = groupPendientesByArea(pendList);
-  const allAreas = [...AREAS, {key:'otros', label:'Otros', tag:'tag-na', icon:'📋'}];
-  const withData = allAreas.filter(a=>groups[a.key]&&groups[a.key].length>0);
-  const total    = pendList.length;
-
-  if(total===0){
-    document.getElementById(tabsId).innerHTML='';
-    document.getElementById(contentId).innerHTML='<div class="empty">Sin pendientes registrados 🎉</div>';
-    return;
-  }
-
-  // Tabs: "Todos" + each area with items
-  const tabs = [{key:'todos', label:'Todos', count:total}, ...withData.map(a=>({key:a.key, label:a.label, count:groups[a.key].length}))];
-
-  document.getElementById(tabsId).innerHTML = tabs.map((t,i)=>`
-    <button class="tab-nav-btn${i===0?' active':''}" onclick="switchPendTab('${prefix}','${t.key}',this)">
-      ${t.label} <span style="font-size:11px;color:inherit;opacity:.7">(${t.count})</span>
-    </button>`).join('');
-
-  // Build all tab content divs
-  let html = `<div class="tab-content show" id="${prefix}-tab-todos">`;
-  allAreas.forEach(a=>{
-    const items = groups[a.key];
-    if(!items||!items.length) return;
-    html += renderAreaGroup(a, items);
-  });
-  html += '</div>';
-
-  withData.forEach(a=>{
-    html += `<div class="tab-content" id="${prefix}-tab-${a.key}">`;
-    html += renderAreaGroup(a, groups[a.key]);
-    html += '</div>';
-  });
-
-  document.getElementById(contentId).innerHTML = html;
-}
-
-function renderAreaGroup(area, items){
-  const tagColors = {
-    'tag-mant':'background:var(--red-light);color:var(--red-dark)',
-    'tag-sis': 'background:var(--amber-light);color:var(--amber-dark)',
-    'tag-mkt': 'background:var(--blue-light);color:var(--blue-dark)',
-    'tag-trd': 'background:var(--green-light);color:var(--green-dark)',
-    'tag-na':  'background:var(--gray-light);color:var(--gray-dark)',
-  };
-  const style = tagColors[area.tag] || tagColors['tag-na'];
-  return `<div class="area-group">
-    <div class="area-group-title">
-      <span>${area.icon} ${area.label}</span>
-      <span class="area-count">${items.length}</span>
-    </div>
-    ${items.map(p=>`
-      <div class="pend-card">
-        <div style="width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0;${style.split(';')[0].replace('background','background')}"></div>
-        <div class="pend-card-body">
-          <div class="pend-card-text">${p.texto}</div>
-          <div class="pend-card-meta">${p.suc||''}</div>
+    return `
+      <div class="sv-card" onclick="showSvPage('${k}',null)">
+        <div class="sv-name">${SV_NAMES[k]}</div>
+        <div class="sv-meta">${visitadas}/${total} sucs visitadas${last?' · Última: '+diasDesde(last.fecha):''}</div>
+        <div class="sv-score-row">
+          <div class="sv-score" style="color:${colScore}">${sc!==null?sc+'%':'—'}</div>
+          <div class="sv-trend">${trendHtml(diff)}</div>
         </div>
-      </div>`).join('')}
-  </div>`;
-}
-
-function switchPendTab(prefix, key, btn){
-  const container = btn.closest('.card') || document.body;
-  container.querySelectorAll('.tab-nav-btn').forEach(b=>b.classList.remove('active'));
-  container.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('show'));
-  btn.classList.add('active');
-  const el = document.getElementById(`${prefix}-tab-${key}`);
-  if(el) el.classList.add('show');
-}
-
-// ── MEJORAS 1-5 ────────────────────────────────────────
-
-// Helper: tendencia vs visita anterior
-function tendencia(vv){
-  if(vv.length < 2) return null;
-  const sorted = [...vv].sort((a,b)=>b.fecha.localeCompare(a.fecha));
-  const last = visitaAvg(sorted[0]);
-  const prev = visitaAvg(sorted[1]);
-  if(last===null||prev===null) return null;
-  return Math.round(last - prev);
-}
-
-function tendenciaHtml(diff){
-  if(diff===null) return '';
-  if(diff > 0)  return `<span style="color:var(--green-mid);font-size:12px;font-weight:600">↑ +${diff}%</span>`;
-  if(diff < 0)  return `<span style="color:var(--red);font-size:12px;font-weight:600">↓ ${diff}%</span>`;
-  return `<span style="color:var(--gray);font-size:12px">→ sin cambio</span>`;
-}
-
-function diasDesde(fechaStr){
-  if(!fechaStr) return null;
-  // Handle Date(2026,5,17) format from Sheets
-  let dateObj;
-  if(typeof fechaStr === 'string' && fechaStr.startsWith('Date(')){
-    const parts = fechaStr.replace('Date(','').replace(')','').split(',');
-    dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]), parseInt(parts[2]));
-  } else if(typeof fechaStr === 'string' && fechaStr.includes('-')){
-    const p = fechaStr.split('T')[0].split('-');
-    dateObj = new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
-  } else if(typeof fechaStr === 'string' && fechaStr.includes('/')){
-    const p = fechaStr.split('/');
-    dateObj = new Date(parseInt(p[2]), parseInt(p[1])-1, parseInt(p[0]));
-  } else {
-    return null;
-  }
-  if(isNaN(dateObj.getTime())) return null;
-  const diff = Math.floor((new Date() - dateObj) / (1000*60*60*24));
-  if(diff === 0) return 'hoy';
-  if(diff === 1) return 'ayer';
-  if(diff < 0) return 'hoy';
-  return `hace ${diff}d`;
-}
-
-function renderResumenEjecutivo(vf){
-  const used = vf && vf.length > 0 ? vf : [];
-  const hace7 = new Date(); hace7.setDate(hace7.getDate()-7);
-  const fechaMin = hace7.toISOString().split('T')[0];
-  const semana = used.filter(v=>v.fecha>=fechaMin);
-  const criticas = used.filter(v=>{ const s=visitaAvg(v); return s!==null&&s<65; });
-  const pendTotal = used.reduce((a,v)=>a+v.pendientes.length,0);
-  const withScore = used.filter(v=>visitaAvg(v)!==null);
-  const best = withScore.length ? [...withScore].sort((a,b)=>(visitaAvg(b)||0)-(visitaAvg(a)||0))[0] : null;
-  const avgAll = avg(used.map(visitaAvg).filter(x=>x!==null));
-
-  const el = document.getElementById('ger-resumen-ejecutivo');
-  if(!el) return;
-  el.innerHTML = `
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:10px">
-      <div style="background:var(--green-light);border-radius:var(--radius);padding:10px 14px;text-align:center">
-        <div style="font-size:22px;font-weight:700;color:var(--green-mid)">${avgAll!==null?Math.round(avgAll)+'%':'—'}</div>
-        <div style="font-size:11px;color:var(--green-dark);margin-top:2px">cumplimiento promedio</div>
-      </div>
-      <div style="background:var(--blue-light);border-radius:var(--radius);padding:10px 14px;text-align:center">
-        <div style="font-size:22px;font-weight:700;color:var(--blue)">${used.length}</div>
-        <div style="font-size:11px;color:var(--blue-dark);margin-top:2px">visitas en el período</div>
-      </div>
-      <div style="background:${criticas.length>0?'var(--red-light)':'var(--green-light)'};border-radius:var(--radius);padding:10px 14px;text-align:center">
-        <div style="font-size:22px;font-weight:700;color:${criticas.length>0?'var(--red)':'var(--green-mid)'}">${criticas.length}</div>
-        <div style="font-size:11px;color:${criticas.length>0?'var(--red-dark)':'var(--green-dark)'};margin-top:2px">alertas críticas</div>
-      </div>
-      <div style="background:${pendTotal>0?'var(--amber-light)':'var(--green-light)'};border-radius:var(--radius);padding:10px 14px;text-align:center">
-        <div style="font-size:22px;font-weight:700;color:${pendTotal>0?'var(--amber)':'var(--green-mid)'}">${pendTotal}</div>
-        <div style="font-size:11px;color:${pendTotal>0?'var(--amber-dark)':'var(--green-dark)'};margin-top:2px">pendientes abiertos</div>
-      </div>
-    </div>
-    ${best?`<div style="font-size:12px;color:var(--text2);background:var(--bg);border-radius:var(--radius);padding:8px 12px">
-      🏆 <strong>Mejor sucursal:</strong> ${best.sucursal} — ${Math.round(visitaAvg(best))}% (${SV_NAMES[best.sv]}, ${fmtDate(best.fecha)})
-    </div>`:''}
-  `;
+        <div style="margin-bottom:8px">
+          <div style="height:4px;background:var(--borde);border-radius:2px;overflow:hidden;position:relative">
+            <div style="position:absolute;left:${META}%;top:0;bottom:0;width:2px;background:var(--ambar-mid);z-index:2"></div>
+            ${sc!==null?`<div style="width:${sc}%;height:100%;background:${colScore};border-radius:2px"></div>`:''}
+          </div>
+        </div>
+        <div class="sv-bars">${secBars}</div>
+      </div>`;
+  }).join('');
 }
 
 function renderGerRanking(vf){
-  const usedV = vf||visitas;
-  const allSucs = [];
-  Object.entries(SUCURSALES).forEach(([svKey, subs])=>{
+  const allSucs=[];
+  Object.entries(SUCURSALES).forEach(([svKey,subs])=>{
     subs.forEach(suc=>{
-      const vv = usedV.filter(v=>v.sucursal===suc).sort((a,b)=>b.fecha.localeCompare(a.fecha));
-      const ultima = vv.length ? vv[0] : null;
-      const score  = ultima ? visitaAvg(ultima) : null;
-      const diff   = tendencia(vv);
-      allSucs.push({suc, svKey, score, fecha: ultima ? ultima.fecha : null, diff});
+      const vvSuc=vf.filter(v=>v.sucursal===suc).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+      const last=vvSuc.length?vvSuc[0]:null;
+      const sc=last?visitaAvg(last):null;
+      const diff=tendencia(vvSuc);
+      allSucs.push({suc,svKey,sc,fecha:last?last.fecha:null,diff});
     });
   });
-  allSucs.sort((a,b)=>{
-    if(a.score===null && b.score===null) return 0;
-    if(a.score===null) return 1;
-    if(b.score===null) return -1;
-    return b.score - a.score;
-  });
-  const medal = (i) => i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
-  document.getElementById('ger-ranking').innerHTML = allSucs.map((s,i)=>{
-    const pct = s.score !== null ? Math.round(s.score) : 0;
-    const col = s.score===null ? 'var(--gray)' : scoreColor(s.score);
-    const sLabel = s.score!==null ? `${Math.round(s.score)}%` : 'Sin visitar';
-    const svName = SV_NAMES[s.svKey].split(' ').map((w,j)=>j===0?w[0]+'.':w).join(' ');
-    const tHtml = tendenciaHtml(s.diff);
-    return `<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #f0f0ee">
-      <div style="width:24px;text-align:center;font-size:13px;flex-shrink:0">${medal(i)||(i+1)}</div>
-      <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
-          <span style="font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.suc}</span>
-          <span style="font-size:11px;color:var(--text3);flex-shrink:0">${svName}</span>
-          ${s.fecha?`<span style="font-size:10px;color:var(--text3);flex-shrink:0">${diasDesde(s.fecha)}</span>`:''}
-        </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <div style="flex:1;height:6px;background:#eee;border-radius:3px;overflow:hidden">
-            <div style="width:${pct}%;height:100%;border-radius:3px;background:${col}"></div>
-          </div>
-          <span style="font-size:12px;font-weight:600;color:${col};width:42px;text-align:right;flex-shrink:0">${sLabel}</span>
-          <span style="width:58px;text-align:right;flex-shrink:0">${tHtml}</span>
-        </div>
-      </div>
+  allSucs.sort((a,b)=>{ if(a.sc===null&&b.sc===null) return 0; if(a.sc===null) return 1; if(b.sc===null) return -1; return b.sc-a.sc; });
+  const medal=i=>i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+  const visited=allSucs.filter(s=>s.sc!==null);
+  document.getElementById('ger-ranking-sub').textContent=`${visited.length} visitadas de ${allSucs.length}`;
+  document.getElementById('ger-ranking').innerHTML=allSucs.map((s,i)=>{
+    const col=s.sc!==null?scoreColor(s.sc):'var(--texto3)';
+    const svShort=SV_NAMES[s.svKey].split(' ').map((w,j)=>j===0?w[0]+'.':w).join(' ');
+    return `<div class="rank-item">
+      <div class="${medal(i)?'rank-medal':'rank-pos'}">${medal(i)||(i+1)}</div>
+      <div class="rank-name">${s.suc}</div>
+      <div class="rank-sv">${svShort}</div>
+      <div class="rank-bar-wrap"><div class="bar-fill" style="width:${s.sc||0}%;height:100%;background:${col};border-radius:3px"></div></div>
+      <div class="rank-score" style="color:${col}">${s.sc!==null?s.sc+'%':'—'}</div>
     </div>`;
-  }).join('') || '<div class="empty">Sin visitas registradas aún</div>';
+  }).join('')||'<div class="empty">Sin visitas registradas</div>';
 }
 
-function renderSvCards(vf){
-  const usedVisitas=vf||visitas;
-  const keys = ['AT','SC','GG','JB'];
-  document.getElementById('sv-cards-gerencial').innerHTML = keys.map(k=>{
-    const vv    = usedVisitas.filter(v=>v.sv===k).sort((a,b)=>b.fecha.localeCompare(a.fecha));
-    const sc    = vv.length ? avg(vv.map(visitaAvg).filter(x=>x!==null)) : null;
-    const pending = vv.reduce((a,v)=>a+v.pendientes.length,0);
-    const diff  = tendencia(vv);
-    const lastFecha = vv.length ? vv[0].fecha : null;
-    const miniHtml = SEC_KEYS.map(sk=>{
-      const secAvgs = vv.map(v=>v.secciones[sk]||null).filter(x=>x!==null);
-      const sa = secAvgs.length?avg(secAvgs):null;
-      const pct = sa?Math.round(sa):0;
-      return `<div class="sbar-row" style="margin-bottom:5px">
-        <div class="sbar-label" style="width:100px;font-size:11px">${SEC_LABELS[sk]}</div>
-        <div class="sbar-track"><div class="sbar-fill" style="width:${pct}%;background:${scoreColor(sa)}"></div></div>
-        <div class="sbar-val" style="font-size:11px;color:${scoreColor(sa)}">${sa!==null?Math.round(sa)+'%':'—'}</div>
-      </div>`;
-    }).join('');
-    return `<div class="sv-card" onclick="showSvPage('${k}',null)">
-      <div class="sv-name">${SV_NAMES[k]}</div>
-      <div class="sv-meta" style="display:flex;align-items:center;justify-content:space-between">
-        <span>${SUCURSALES[k].length} sucursales · ${vv.length} visita${vv.length!==1?'s':''}</span>
-        ${lastFecha?`<span style="font-size:11px;color:var(--text3)">Última: ${diasDesde(lastFecha)}</span>`:''}
-      </div>
-      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px;margin-top:8px">
-        <div class="sv-score" style="color:${scoreColor(sc)}">${sc!==null?Math.round(sc)+'%':'—'}</div>
-        <div>${tendenciaHtml(diff)}</div>
-        ${pending>0?`<span class="badge badge-warn" style="margin-left:auto">${pending} pendiente${pending!==1?'s':''}</span>`:'<span class="badge badge-ok" style="margin-left:auto">Al día</span>'}
-      </div>
-      <div class="sv-mini-bars">${miniHtml}</div>
-    </div>`;
-  }).join('');
-}
-
-function renderGerSecBars(vf){
-  const usedV=vf||visitas;
-  const html = SEC_KEYS.map(k=>{
-    const all = usedV.map(v=>v.secciones[k]||null).filter(x=>x!==null);
-    const sc = all.length?avg(all):null;
-    const pct = sc?Math.round(sc):0;
-    return `<div class="sbar-row">
-      <div class="sbar-label">${SEC_LABELS[k]}</div>
-      <div class="sbar-track"><div class="sbar-fill" style="width:${pct}%;background:${scoreColor(sc)}"></div></div>
-      <div class="sbar-val" style="color:${scoreColor(sc)}">${sc!==null?Math.round(sc)+'%':'—'}</div>
-    </div>`;
-  }).join('');
-  document.getElementById('ger-sec-bars').innerHTML = html;
-}
-
-let deleteMode = false;
-let selectedIdxs = new Set();
-
-function toggleDeleteMode(){
-  deleteMode = !deleteMode;
-  selectedIdxs.clear();
-  const btn      = document.getElementById('btn-delete-mode');
-  const th       = document.getElementById('th-delete');
-  const toolbar  = document.getElementById('delete-toolbar');
-  const chkAll   = document.getElementById('chk-all');
-  if(deleteMode){
-    btn.style.background   = 'var(--red-light)';
-    btn.style.color        = 'var(--red-dark)';
-    btn.style.borderColor  = 'var(--red-light)';
-    btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;stroke-width:2;fill:none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Cancelar';
-    th.style.display       = '';
-    toolbar.style.display  = 'flex';
-  } else {
-    btn.style.background   = '#fff';
-    btn.style.color        = 'var(--text2)';
-    btn.style.borderColor  = 'var(--border)';
-    btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;stroke-width:2;fill:none"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg> Seleccionar';
-    th.style.display       = 'none';
-    toolbar.style.display  = 'none';
-    if(chkAll) chkAll.checked = false;
-  }
-  renderAllVisitasTable();
-}
-
-function toggleCheck(origIdx, cb){
-  if(cb.checked) selectedIdxs.add(origIdx);
-  else selectedIdxs.delete(origIdx);
-  updateDeleteCount();
-}
-
-function toggleAllCheckboxes(masterCb){
-  document.querySelectorAll('.row-chk').forEach(cb=>{
-    cb.checked = masterCb.checked;
-    const idx = parseInt(cb.dataset.idx);
-    if(masterCb.checked) selectedIdxs.add(idx);
-    else selectedIdxs.delete(idx);
+function renderGerEvol(vf){
+  if(evolChart) evolChart.destroy();
+  const sorted=[...visitas].sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  const allDates=[...new Set(sorted.map(v=>v.fecha))].sort();
+  const COLORS={AT:'#3DAA6A',SC:'#3182CE',GG:'#D97706',JB:'#E53E3E'};
+  const datasets=Object.keys(SV_NAMES).map(k=>{
+    const data=allDates.map(d=>{
+      const vv=sorted.filter(v=>v.sv===k&&v.fecha===d);
+      if(!vv.length) return null;
+      const s=avg(vv.map(visitaAvg).filter(x=>x!==null));
+      return s!==null?Math.round(s):null;
+    });
+    return {label:SV_NAMES[k].split(' ')[1],data,borderColor:COLORS[k],backgroundColor:COLORS[k]+'22',tension:.3,pointRadius:4,fill:false,spanGaps:true};
   });
-  updateDeleteCount();
-}
-
-function selectAllVisitas(){
-  const sorted = [...visitas].map((_,i)=>i);
-  sorted.forEach(i=>selectedIdxs.add(i));
-  document.querySelectorAll('.row-chk').forEach(cb=>cb.checked=true);
-  const chkAll = document.getElementById('chk-all');
-  if(chkAll) chkAll.checked = true;
-  updateDeleteCount();
-}
-
-function updateDeleteCount(){
-  const n = selectedIdxs.size;
-  document.getElementById('delete-count').textContent = n === 0
-    ? '0 seleccionadas'
-    : `${n} visita${n!==1?'s':''} seleccionada${n!==1?'s':''}`;
-}
-
-function deleteSelected(){
-  if(selectedIdxs.size===0){ alert('Seleccioná al menos una visita.'); return; }
-  const n = selectedIdxs.size;
-  if(!confirm(`¿Eliminar ${n} visita${n!==1?'s':''} seleccionada${n!==1?'s':''}? Esta acción no se puede deshacer.`)) return;
-  visitas = visitas.filter((_,i)=>!selectedIdxs.has(i));
-  selectedIdxs.clear();
-  saveVisitas();
-  toggleDeleteMode();
-  renderGerencial();
-}
-
-function renderAllVisitasTable(vf){
-  const sorted = [...(vf||visitas)].map((v,origIdx)=>({...v,origIdx})).sort((a,b)=>b.fecha.localeCompare(a.fecha));
-  document.getElementById('tbody-all').innerHTML = sorted.map(v=>{
-    const gen = visitaAvg(v);
-    const isChecked = selectedIdxs.has(v.origIdx);
-    const delCell = deleteMode
-      ? `<td><input type="checkbox" class="row-chk" data-idx="${v.origIdx}" ${isChecked?'checked':''} onchange="toggleCheck(${v.origIdx},this)" style="cursor:pointer;width:15px;height:15px"></td>`
-      : '';
-    return `<tr style="${isChecked?'background:#fff0f0':''}">
-      ${delCell}
-      <td style="white-space:nowrap;color:var(--text3)">${fmtDate(v.fecha)}</td>
-      <td style="white-space:nowrap">${SV_NAMES[v.sv]}</td>
-      <td class="suc-name">${v.sucursal}</td>
-      ${SEC_KEYS.map(k=>{const s=v.secciones[k];return`<td><span class="badge ${badgeClass(s)}">${s!==null?Math.round(s)+'%':'—'}</span></td>`;}).join('')}
-      <td><span class="badge ${badgeClass(gen)}" style="font-size:12px">${gen!==null?Math.round(gen)+'%':'—'}</span></td>
-    </tr>`;
-  }).join('') || '<tr><td colspan="11" class="empty">Sin visitas registradas aún</td></tr>';
-}
-
-function renderEvolGer(vf){
-  if(evolGerChart){ evolGerChart.destroy(); }
-  const sorted = [...visitas].sort((a,b)=>a.fecha.localeCompare(b.fecha));
-  const keys = ['AT','SC','GG','JB'];
-  const colors = ['#185FA5','#8DC63F','#D4537E','#BA7517'];
-  const datasets = keys.map((k,i)=>{
-    const vv = sorted.filter(v=>v.sv===k);
-    return {label:SV_NAMES[k].split(' ')[1],data:vv.map(v=>visitaAvg(v)),borderColor:colors[i],backgroundColor:colors[i]+'22',tension:.3,pointRadius:4,fill:false};
-  });
-  const allDates = [...new Set(sorted.map(v=>v.fecha))].map(fmtDate);
-  evolGerChart = new Chart(document.getElementById('chart-evol-ger'),{
-    type:'line',
-    data:{labels:allDates,datasets},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom',labels:{font:{size:11},boxWidth:12}}},scales:{y:{min:0,max:100,ticks:{stepSize:20,callback:v=>v+'%'}}}}
-  });
-}
-
-// ── SUPERVISOR ─────────────────────────────────────────
-function renderSvPage(svKey){
-  populateFiltroPeriodo();
-  populateFiltroSucursal();
-  // Full data for KPIs (always show total context, not filtered)
-  const vvAll = svVisitas(svKey);
-  // Filtered data for detail sections
-  let vv = filtroSucursal ? vvAll.filter(v=>v.sucursal===filtroSucursal) : vvAll;
-  const last = vv.length?vv[0]:null;
-
-  // KPIs always use full unfiltered data
-  const visitadasAll = new Set(vvAll.map(v=>v.sucursal)).size;
-  const sinVisitarAll = SUCURSALES[svKey].length - visitadasAll;
-  const pendingAll = vvAll.reduce((a,v)=>a+v.pendientes.length,0);
-  const scAll = svAvgScore(svKey);
-  const kpiClass = (s)=>s===null?'':s>=75?'k-green':s>65?'k-amber':'k-red';
-
-  document.getElementById('sv-kpis').innerHTML = `
-    <div class="kpi ${kpiClass(scAll)}">
-      <div class="k-lbl">Puntaje promedio</div>
-      <div class="k-val" style="display:flex;align-items:baseline;gap:6px">${scAll!==null?Math.round(scAll)+'%':'—'}<span style="font-size:13px">${tendenciaHtml(tendencia(vvAll))}</span></div>
-      <div class="k-sub">${vvAll.length} visita${vvAll.length!==1?'s':''} registradas</div>
-    </div>
-    <div class="kpi k-blue">
-      <div class="k-lbl">Sucursales visitadas</div>
-      <div class="k-val">${visitadasAll}</div>
-      <div class="k-sub">de ${SUCURSALES[svKey].length} asignadas</div>
-    </div>
-    <div class="kpi ${sinVisitarAll>0?'k-amber':'k-green'}">
-      <div class="k-lbl">Sin visitar</div>
-      <div class="k-val">${sinVisitarAll}</div>
-      <div class="k-sub">sucursales pendientes</div>
-    </div>
-    <div class="kpi ${pendingAll>0?'k-amber':'k-green'}">
-      <div class="k-lbl">Pendientes</div>
-      <div class="k-val">${pendingAll}</div>
-      <div class="k-sub">acciones abiertas</div>
-    </div>
-  `;
-  const pending = vv.reduce((a,v)=>a+v.pendientes.length,0);
-  const visitadas = new Set(vv.map(v=>v.sucursal)).size;
-  const sinVisitar = SUCURSALES[svKey].length - visitadas;
-  const sc = scAll;
-
-  // Tabla sucursales
-  document.getElementById('sv-suc-tbody').innerHTML = SUCURSALES[svKey].map(suc=>{
-    const visitasSuc = vvAll.filter(v=>v.sucursal===suc).sort((a,b)=>b.fecha.localeCompare(a.fecha));
-    const ultima = visitasSuc.length?visitasSuc[0]:null;
-    const sc2  = ultima?visitaAvg(ultima):null;
-    const diff = tendencia(visitasSuc);
-    const cuando = ultima ? `${fmtDate(ultima.fecha)} (${diasDesde(ultima.fecha)})` : 'Sin visitar';
-    return `<tr>
-      <td class="suc-name">${suc}</td>
-      <td style="color:var(--text3);font-size:12px">${cuando}</td>
-      <td>${sc2!==null?`<span class="badge ${badgeClass(sc2)}">${Math.round(sc2)}%</span>`:'<span class="badge badge-na">—</span>'}</td>
-      <td>${tendenciaHtml(diff)}</td>
-    </tr>`;
-  }).join('');
-
-  // Barras sección última visita
-  if(last){
-    document.getElementById('sv-sec-bars').innerHTML = SEC_KEYS.map(k=>{
-      const sc2 = last.secciones[k];
-      const pct = sc2?Math.round(sc2):0;
-      return `<div class="sbar-row">
-        <div class="sbar-label">${SEC_LABELS[k]}</div>
-        <div class="sbar-track"><div class="sbar-fill" style="width:${pct}%;background:${scoreColor(sc2)}"></div></div>
-        <div class="sbar-val" style="color:${scoreColor(sc2)}">${sc2!==null?Math.round(sc2)+'%':'—'}</div>
-      </div>`;
-    }).join('');
-  } else {
-    document.getElementById('sv-sec-bars').innerHTML='<div class="empty">Sin visitas registradas</div>';
-  }
-
-  // Timeline
-  document.getElementById('sv-timeline').innerHTML = vv.length ? vv.slice(0,8).map(v=>{
-    const s = visitaAvg(v);
-    const dc = s===null?'tl-dot-warn':s>=4?'tl-dot-ok':s>=3?'tl-dot-warn':'tl-dot-bad';
-    return `<div class="tl-item">
-      <div class="tl-dot ${dc}"></div>
-      <div class="tl-body">
-        <div class="tl-suc">${v.sucursal}</div>
-        <div class="tl-meta">${fmtDate(v.fecha)} &nbsp;·&nbsp; Puntaje: <strong style="color:${scoreColor(s)}">${s!==null?Math.round(s)+'%':'—'}</strong></div>
-        ${v.obs.length?'<div style="font-size:11px;color:var(--text3);margin-top:2px">'+v.obs[0]+'</div>':''}
-      </div>
-    </div>`;
-  }).join('') : '<div class="empty">Sin historial</div>';
-
-  // Pendientes
-  const allPend = vv.flatMap(v=>v.pendientes.map(p=>({...p,suc:v.sucursal})));
-  document.getElementById('sv-pendientes').innerHTML = allPend.length ? allPend.map(p=>`
-    <div class="pend-item">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      <div><div class="pend-text">${p.texto}</div>
-      <div class="tag-row"><span class="pend-tag ${p.tag}">${p.tag.replace('tag-','')}</span><span style="font-size:11px;color:var(--text3)">${p.suc}</span></div></div>
-    </div>`).join('') : '<div class="empty">Sin pendientes 🎉</div>';
-
-  // Pendientes por área (tabs)
-  renderPendientesTabs(allPend, 'sv-pend-tabs', 'sv-pend-content', 'sv');
-
-  // Chart evolución
-  if(evolChart){ evolChart.destroy(); }
-  const sorted2 = [...vv].sort((a,b)=>a.fecha.localeCompare(b.fecha));
-  evolChart = new Chart(document.getElementById('chart-sv-evol'),{
-    type:'line',
-    data:{
-      labels:sorted2.map(v=>fmtDate(v.fecha)),
-      datasets:[{
-        label:'Puntaje general',data:sorted2.map(visitaAvg),
-        borderColor:'#8DC63F',backgroundColor:'#8DC63F22',tension:.3,pointRadius:5,fill:true
-      }]
+  const ctx=document.getElementById('chart-evol');
+  if(!ctx) return;
+  evolChart=new Chart(ctx,{type:'line',data:{labels:allDates.map(fmtDate),datasets},options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:true,position:'bottom',labels:{font:{size:11},boxWidth:10}},
+      annotation:{annotations:{meta:{type:'line',yMin:META,yMax:META,borderColor:COLORS['JB'],borderWidth:1,borderDash:[4,4],label:{display:true,content:'Meta '+META+'%',position:'end',font:{size:9}}}}}
     },
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{stepSize:20,callback:v=>v+'%'}}}}
+    scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%',stepSize:20},grid:{color:'#F0F0F0'}},x:{ticks:{font:{size:10},maxRotation:45},grid:{display:false}}}
+  }});
+}
+
+function renderGerPendientes(vf){
+  const areas={};
+  vf.forEach(v=>{
+    v.pendientes.forEach(p=>{
+      const txt=typeof p==='string'?p:p.texto||'';
+      const ci=txt.indexOf(': ');
+      const area=ci>0?txt.substring(0,ci).trim():'General';
+      areas[area]=(areas[area]||0)+1;
+    });
   });
+  const sorted=Object.entries(areas).sort((a,b)=>b[1]-a[1]);
+  const max=sorted.length?sorted[0][1]:1;
+  const total=sorted.reduce((a,[,n])=>a+n,0);
+  document.getElementById('ger-pend-sub').textContent=`${total} pendientes en ${sorted.length} áreas`;
+  document.getElementById('ger-pendientes').innerHTML=sorted.length?sorted.map(([area,n])=>{
+    const pct=Math.round(n/max*100);
+    const col=n>=4?'var(--rojo-mid)':n>=2?'var(--ambar-mid)':'var(--verde-mid)';
+    return `<div class="pend-area-row">
+      <div class="pend-area-name">${area}</div>
+      <div class="pend-bar-wrap"><div class="pend-bar-fill" style="width:${pct}%;background:${col}"></div></div>
+      <div class="pend-count" style="color:${col}">${n}</div>
+    </div>`;
+  }).join('')+'<div class="pend-footer"><span>Total: <strong style="color:var(--texto)">${total}</strong></span></div>'.replace('${total}',total)
+  :'<div class="empty">Sin pendientes registrados 🎉</div>';
+}
+
+function renderGerCobertura(vf){
+  const keys=cobTab==='todas'?['AT','SC','GG','JB']:cobTab==='at'?['AT']:cobTab==='sc'?['SC']:cobTab==='gg'?['GG']:['JB'];
+  const allSucs=keys.flatMap(k=>SUCURSALES[k].map(s=>({s,k})));
+  const visitadasCount=allSucs.filter(({s})=>vf.some(v=>v.sucursal===s)).length;
+  document.getElementById('ger-cob-sub').textContent=`${visitadasCount} de ${allSucs.length} visitadas`;
+  document.getElementById('ger-cobertura').innerHTML=allSucs.map(({s,k})=>{
+    const vvSuc=vf.filter(v=>v.sucursal===s).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+    const last=vvSuc.length?vvSuc[0]:null;
+    const sc=last?visitaAvg(last):null;
+    if(!last) return `<div class="cob-card sin-visitar"><div class="cob-name" title="${s}">${s}</div><div style="font-size:11px;color:var(--texto3);margin-top:4px">Sin visitar</div></div>`;
+    return `<div class="cob-card visitada" onclick="showSvPage('${k}',null)" title="${s}">
+      <div class="cob-name">${s}</div>
+      <div class="cob-score" style="color:${scoreColor(sc)}">${sc!==null?sc+'%':'—'}</div>
+      <div class="cob-fecha">${fmtDate(last.fecha)} · ${diasDesde(last.fecha)}</div>
+    </div>`;
+  }).join('');
+}
+
+function switchCobTab(tab,btn){
+  cobTab=tab;
+  document.querySelectorAll('.tab-bar .tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const vf=visitasFiltradas(visitas);
+  renderGerCobertura(vf);
+}
+
+// ══════════════════════════════════════════════════════════
+// SUPERVISOR
+// ══════════════════════════════════════════════════════════
+function renderSvPage(svKey){
+  const vvAll=svVisitas(svKey);
+  const vvF=visitasFiltradas(vvAll);
+  const last=vvF.length?vvF[0]:null;
+  const scores=vvF.map(visitaAvg).filter(x=>x!==null);
+  const sc=scores.length?Math.round(avg(scores)*10)/10:null;
+  const visitadas=new Set(vvF.map(v=>v.sucursal)).size;
+  const total=SUCURSALES[svKey].length;
+  const sinVisitar=total-visitadas;
+  const pendTotal=vvF.reduce((a,v)=>a+v.pendientes.length,0);
+  const diff=tendencia(vvF);
+
+  // Hero KPIs
+  document.getElementById('sv-hero').innerHTML=`
+    <div class="hero-card ${sc!==null?(sc>=META?'verde':sc>=(META-10)?'ambar':'rojo'):''}">
+      <div class="hero-label">Cumplimiento promedio</div>
+      <div class="hero-val">${sc!==null?sc+'%':'—'}</div>
+      <div class="hero-sub">${trendHtml(diff)} vs período anterior</div>
+    </div>
+    <div class="hero-card azul">
+      <div class="hero-label">Sucursales visitadas</div>
+      <div class="hero-val">${visitadas}<span style="font-size:18px;font-weight:500;color:var(--texto3)">/${total}</span></div>
+      <div class="hero-sub">${vvF.length} visita${vvF.length!==1?'s':''} registradas</div>
+    </div>
+    <div class="hero-card ${sinVisitar>0?'ambar':'verde'}">
+      <div class="hero-label">Sin visitar</div>
+      <div class="hero-val">${sinVisitar}</div>
+      <div class="hero-sub">${sinVisitar>0?'sucursales pendientes':'todas visitadas 🎉'}</div>
+    </div>
+    <div class="hero-card ${pendTotal>0?'ambar':'verde'}">
+      <div class="hero-label">Pendientes abiertos</div>
+      <div class="hero-val">${pendTotal}</div>
+      <div class="hero-sub">${pendTotal>0?'requieren seguimiento':'al día'}</div>
+    </div>`;
+
+  // Cobertura cards
+  document.getElementById('sv-sub-sucs').textContent=`${visitadas} de ${total} visitadas`;
+  document.getElementById('sv-cobertura').innerHTML=SUCURSALES[svKey].map(suc=>{
+    const vvSuc=vvF.filter(v=>v.sucursal===suc).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+    const lastSuc=vvSuc.length?vvSuc[0]:null;
+    const scSuc=lastSuc?visitaAvg(lastSuc):null;
+    if(!lastSuc) return `<div class="cob-card sin-visitar"><div class="cob-name" title="${suc}">${suc}</div><div style="font-size:11px;color:var(--texto3);margin-top:4px">Sin visitar</div></div>`;
+    return `<div class="cob-card visitada" title="${suc}">
+      <div class="cob-name">${suc}</div>
+      <div class="cob-score" style="color:${scoreColor(scSuc)}">${scSuc!==null?scSuc+'%':'—'}</div>
+      <div class="cob-fecha">${fmtDate(lastSuc.fecha)} · ${diasDesde(lastSuc.fecha)}</div>
+    </div>`;
+  }).join('');
 
   // Ranking
-  renderSvRanking(svKey);
+  const ranked=SUCURSALES[svKey].map(suc=>{
+    const vvSuc=vvF.filter(v=>v.sucursal===suc).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+    const lastSuc=vvSuc.length?vvSuc[0]:null;
+    return {suc,sc:lastSuc?visitaAvg(lastSuc):null,diff:tendencia(vvSuc),fecha:lastSuc?lastSuc.fecha:null};
+  }).sort((a,b)=>{ if(a.sc===null&&b.sc===null) return 0; if(a.sc===null) return 1; if(b.sc===null) return -1; return b.sc-a.sc; });
+  const medal=i=>i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+  document.getElementById('sv-ranking').innerHTML=ranked.map((s,i)=>{
+    const col=s.sc!==null?scoreColor(s.sc):'var(--texto3)';
+    return `<div class="rank-item">
+      <div class="${medal(i)?'rank-medal':'rank-pos'}">${medal(i)||(i+1)}</div>
+      <div class="rank-name">${s.suc}</div>
+      <div class="rank-sv" style="font-size:10px;color:var(--texto3)">${s.fecha?diasDesde(s.fecha):''}</div>
+      <div class="rank-bar-wrap"><div class="bar-fill" style="width:${s.sc||0}%;height:100%;background:${col};border-radius:3px"></div></div>
+      <div class="rank-score" style="color:${col}">${s.sc!==null?s.sc+'%':'—'}</div>
+    </div>`;
+  }).join('');
 
-  // Historial evolución supervisor
-  renderSvHistEvol(svKey);
+  // Evolución
+  if(svEvolChart) svEvolChart.destroy();
+  const sorted2=[...vvAll].sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  const ctx2=document.getElementById('chart-sv-evol');
+  if(ctx2){
+    svEvolChart=new Chart(ctx2,{type:'bar',data:{
+      labels:sorted2.map(v=>v.sucursal.replace('Openfarma ','').replace('Open ','')+' '+fmtDate(v.fecha)),
+      datasets:[{label:'Cumplimiento',data:sorted2.map(visitaAvg),backgroundColor:sorted2.map(v=>{ const s=visitaAvg(v); return s===null?'#E2E8F0':s>=META?'#3DAA6A':s>=(META-10)?'#D97706':'#E53E3E'; }),borderRadius:4}]
+    },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%',stepSize:20}},x:{ticks:{font:{size:9},maxRotation:60}}}}});
+  }
 
-  // Populate sucursal selector for this supervisor
-  populateSvHistSucSelect(svKey);
+  // Sección última visita
+  if(last){
+    document.getElementById('sv-last-visit-meta').textContent=`${last.sucursal} · ${fmtDate(last.fecha)}`;
+    document.getElementById('sv-sec-bars').innerHTML=SEC_KEYS.map(k=>{
+      const s=last.secciones[k];
+      const pct=s!==null?s:0;
+      return s!==null?`<div class="bar-row" style="margin-bottom:8px">
+        <div class="bar-label" style="font-size:11px;width:110px">${SEC_LABELS[k]}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${scoreColor(s)}"></div></div>
+        <div class="bar-val" style="font-size:11px;color:${scoreColor(s)}">${s}%</div>
+      </div>`:''
+    }).filter(Boolean).join('')||'<div class="empty">Sin datos</div>';
+  }
 
-  // New sections
-  renderSvAlertas(svKey);
-  renderSvPendientesGestion(svKey);
-  renderSvAdminTbl(svKey);
-  renderSvPositivos(svKey);
-}
-
-function renderSvRanking(svKey){
-  const subs = SUCURSALES[svKey];
-  const vv   = svVisitas(svKey);
-
-  const ranked = subs.map(suc=>{
-    const visitasSuc = vv.filter(v=>v.sucursal===suc).sort((a,b)=>b.fecha.localeCompare(a.fecha));
-    const ultima = visitasSuc.length ? visitasSuc[0] : null;
-    const score  = ultima ? visitaAvg(ultima) : null;
-    const diff   = tendencia(visitasSuc);
-    return {suc, score, fecha: ultima ? ultima.fecha : null, diff};
-  });
-
-  ranked.sort((a,b)=>{
-    if(a.score===null && b.score===null) return 0;
-    if(a.score===null) return 1;
-    if(b.score===null) return -1;
-    return b.score - a.score;
-  });
-
-  const medal = (i) => i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
-
-  document.getElementById('sv-ranking').innerHTML = ranked.map((s,i)=>{
-    const pct   = s.score !== null ? Math.round(s.score) : 0;
-    const col   = s.score===null ? 'var(--gray)' : scoreColor(s.score);
-    const sLabel = s.score!==null ? `${Math.round(s.score)}%` : 'Sin visitar';
-    const cuando = s.fecha ? diasDesde(s.fecha) : '';
-    return `<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #f0f0ee">
-      <div style="width:24px;text-align:center;font-size:13px;flex-shrink:0">${medal(i)||(i+1)}</div>
-      <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
-          <span style="font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%">${s.suc}</span>
-          <span style="font-size:11px;color:var(--text3);flex-shrink:0">${cuando}</span>
+  // Pendientes abiertos
+  const svPend=allPendientes.filter(p=>p.sv===svKey&&p.estado!=='Resuelto');
+  document.getElementById('sv-pend-abiertos').innerHTML=svPend.length?svPend.map(p=>`
+    <div class="pend-item abierto">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+        <div>
+          <div class="pend-item-area">${p.area}</div>
+          <div class="pend-item-txt">${p.texto}</div>
+          <div class="pend-item-meta">${p.sucursal} · ${fmtDate(p.fecha_visita)}</div>
         </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <div style="flex:1;height:6px;background:#eee;border-radius:3px;overflow:hidden">
-            <div style="width:${pct}%;height:100%;border-radius:3px;background:${col}"></div>
-          </div>
-          <span style="font-size:12px;font-weight:600;color:${col};width:40px;text-align:right;flex-shrink:0">${sLabel}</span>
-          <span style="width:58px;text-align:right;flex-shrink:0">${tendenciaHtml(s.diff)}</span>
-        </div>
+        <button class="btn-resolver" onclick="marcarResuelto('${p.id}','${svKey}')">✓ Resolver</button>
+      </div>
+    </div>`).join(''):'<div class="empty">Sin pendientes abiertos 🎉</div>';
+
+  // Timeline
+  document.getElementById('sv-timeline').innerHTML=vvAll.slice(0,8).map(v=>{
+    const s=visitaAvg(v);
+    const col=s===null?'var(--texto3)':s>=META?'var(--verde-mid)':s>=(META-10)?'var(--ambar-mid)':'var(--rojo-mid)';
+    return `<div class="tl-item">
+      <div class="tl-dot" style="background:${col}"></div>
+      <div class="tl-content">
+        <div class="tl-name">${v.sucursal}</div>
+        <div class="tl-meta">${fmtDate(v.fecha)} · ${diasDesde(v.fecha)} · <strong style="color:${col}">${s!==null?s+'%':'—'}</strong></div>
+        ${v.obs&&v.obs.length?`<div class="tl-obs">${v.obs[0]}</div>`:''}
       </div>
     </div>`;
-  }).join('') || '<div class="empty">Sin datos</div>';
+  }).join('')||'<div class="empty">Sin historial</div>';
 }
 
-// ── GESTIÓN DE PENDIENTES ──────────────────────────────
-let allPendientes = []; // loaded from Sheets
-
-async function loadAllPendientes(){
-  try {
-    const res  = await fetch(SCRIPT_URL+'?action=getAllPendientes');
-    const text = await res.text();
-    const data = JSON.parse(text);
-    if(data.status==='ok') allPendientes = data.pendientes || [];
-  } catch(e){ console.warn('Error loading pendientes:', e); }
-}
-
-function switchPendTab(tab, btn){
-  document.querySelectorAll('#ptab-abiertos,#ptab-resueltos').forEach(b=>{
-    b.style.background='#fff'; b.style.color='var(--text2)'; b.style.borderColor='var(--border)';
-  });
-  btn.style.background='var(--green)'; btn.style.color='#fff'; btn.style.borderColor='var(--green)';
-  document.getElementById('sv-pend-abiertos').style.display = tab==='abiertos'?'block':'none';
-  document.getElementById('sv-pend-resueltos').style.display = tab==='resueltos'?'block':'none';
-}
-
-function renderSvPendientesGestion(svKey){
-  const svPend = allPendientes.filter(p=>p.sv===svKey);
-  const abiertos  = svPend.filter(p=>p.estado!=='Resuelto');
-  const resueltos = svPend.filter(p=>p.estado==='Resuelto');
-
-  // Abiertos
-  const elAb = document.getElementById('sv-pend-abiertos');
-  if(!elAb) return;
-  if(!abiertos.length){
-    elAb.innerHTML='<div class="empty">Sin pendientes abiertos 🎉</div>';
-  } else {
-    elAb.innerHTML = abiertos.map(p=>`
-      <div style="background:var(--bg);border-radius:var(--radius);padding:10px 12px;margin-bottom:8px;border-left:3px solid ${p.estado==='En proceso'?'var(--amber)':'var(--red)'}">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
-          <div style="flex:1">
-            <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px">${p.area}</div>
-            <div style="font-size:13px;color:var(--text);margin-bottom:3px">${p.texto}</div>
-            <div style="font-size:11px;color:var(--text3)">${p.sucursal} · ${fmtDate(p.fecha_visita)}</div>
-            ${p.estado==='En proceso'?'<span class="badge badge-warn" style="margin-top:4px;display:inline-block">En proceso</span>':''}
-          </div>
-          <button onclick="marcarResuelto('${p.id}','${svKey}')" style="padding:6px 12px;border-radius:var(--radius);border:1px solid var(--green);background:#fff;color:var(--green);font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;flex-shrink:0">✓ Resolver</button>
-        </div>
-      </div>`).join('');
-  }
-
-  // Resueltos
-  const elRes = document.getElementById('sv-pend-resueltos');
-  if(!elRes) return;
-  if(!resueltos.length){
-    elRes.innerHTML='<div class="empty">Sin pendientes resueltos aún</div>';
-  } else {
-    elRes.innerHTML = resueltos.map(p=>`
-      <div style="background:var(--green-light);border-radius:var(--radius);padding:10px 12px;margin-bottom:8px;border-left:3px solid var(--green-mid)">
-        <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px">${p.area}</div>
-        <div style="font-size:13px;color:var(--text);margin-bottom:3px">${p.texto}</div>
-        <div style="font-size:11px;color:var(--text3)">${p.sucursal} · Visita: ${fmtDate(p.fecha_visita)}</div>
-        <div style="font-size:11px;color:var(--green-dark);margin-top:3px">✓ Resuelto por ${p.resuelto_por} el ${fmtDate(p.fecha_resolucion)}</div>
-      </div>`).join('');
-  }
-}
-
-async function marcarResuelto(id, svKey){
-  if(!currentUser){ alert('Ingresá al sistema primero.'); return; }
-  const hoy = new Date().toISOString().split('T')[0];
-  const btn = event.target;
-  btn.textContent='...'; btn.disabled=true;
-  try {
-    const res  = await fetch(SCRIPT_URL, {
-      method:'POST',
-      body: JSON.stringify({action:'resolverPendiente', id, resuelto_por: currentUser.nombre, fecha_resolucion: hoy}),
-      redirect:'follow'
-    });
-    const text = await res.text();
-    const data = JSON.parse(text);
-    if(data.status==='ok'){
-      // Update local copy
-      const p = allPendientes.find(p=>String(p.id)===String(id));
-      if(p){ p.estado='Resuelto'; p.resuelto_por=currentUser.nombre; p.fecha_resolucion=hoy; }
-      renderSvPendientesGestion(svKey);
-    } else {
-      btn.textContent='✓ Resolver'; btn.disabled=false;
-      alert('Error al resolver: '+(data.msg||''));
-    }
-  } catch(e){
-    btn.textContent='✓ Resolver'; btn.disabled=false;
-  }
-}
-let histSvChart    = null;
-let histSucChart   = null;
-let svHistEvolChart= null;
-let svHistSucChart = null;
-
-function renderHistSupervisores(vf){
-  if(histSvChart){ histSvChart.destroy(); }
-  const keys   = ['AT','SC','GG','JB'];
-  const colors = ['#185FA5','#8DC63F','#D4537E','#BA7517'];
-  const sorted = [...(vf||visitas)].sort((a,b)=>a.fecha.localeCompare(b.fecha));
-  const allDates = [...new Set(sorted.map(v=>v.fecha))].sort();
-
-  const datasets = keys.map((k,i)=>{
-    const data = allDates.map(fecha=>{
-      const vv = sorted.filter(v=>v.sv===k&&v.fecha===fecha);
-      if(!vv.length) return null;
-      const avgs = vv.map(visitaAvg).filter(x=>x!==null);
-      return avgs.length ? Math.round(avgs.reduce((a,b)=>a+b,0)/avgs.length*10)/10 : null;
-    });
-    return {
-      label: SV_NAMES[k].split(' ')[1],
-      data, borderColor:colors[i], backgroundColor:colors[i]+'33',
-      tension:.3, pointRadius:4, fill:false, spanGaps:true
-    };
-  });
-
-  const ctx = document.getElementById('chart-hist-sv');
-  if(!ctx) return;
-  histSvChart = new Chart(ctx,{
-    type:'line',
-    data:{labels:allDates.map(fmtDate), datasets},
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:true,position:'bottom',labels:{font:{size:11},boxWidth:12}}},
-      scales:{y:{min:0,max:100,ticks:{stepSize:20,callback:v=>v+'%'},title:{display:true,text:'Cumplimiento %',font:{size:11}}}}
-    }
-  });
-}
-
-function populateHistSucSelect(){
-  const sel = document.getElementById('hist-suc-select');
-  if(!sel) return;
-  const sucVisitadas = [...new Set(visitas.map(v=>v.sucursal))].sort();
-  sel.innerHTML = '<option value="">Seleccioná una sucursal</option>';
-  sucVisitadas.forEach(s=>{ const o=document.createElement('option'); o.textContent=s; sel.appendChild(o); });
-}
-
-function renderHistSucursal(){
-  const suc = document.getElementById('hist-suc-select').value;
-  const empty = document.getElementById('hist-suc-empty');
-  if(histSucChart){ histSucChart.destroy(); histSucChart=null; }
-  if(!suc){ if(empty) empty.style.display='none'; return; }
-
-  const vv = visitas.filter(v=>v.sucursal===suc).sort((a,b)=>a.fecha.localeCompare(b.fecha));
-  if(!vv.length){ if(empty) empty.style.display='block'; return; }
-  if(empty) empty.style.display='none';
-
-  const labels = vv.map(v=>fmtDate(v.fecha));
-  const data   = vv.map(visitaAvg);
-  const col    = '#8DC63F';
-
-  histSucChart = new Chart(document.getElementById('chart-hist-suc'),{
-    type:'line',
-    data:{
-      labels,
-      datasets:[{
-        label:suc, data, borderColor:col, backgroundColor:col+'33',
-        tension:.3, pointRadius:5, fill:true
-      }]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
-      scales:{y:{min:0,max:100,ticks:{stepSize:20,callback:v=>v+'%'}}}
-    }
-  });
-}
-
-function renderSvHistEvol(svKey){
-  if(svHistEvolChart){ svHistEvolChart.destroy(); svHistEvolChart=null; }
-  const ctx = document.getElementById('chart-sv-hist-evol');
-  if(!ctx) return;
-  const vv = svVisitas(svKey).sort((a,b)=>a.fecha.localeCompare(b.fecha));
-  if(!vv.length){ return; }
-
-  const labels = vv.map(v=>fmtDate(v.fecha)+' — '+v.sucursal.replace('Openfarma ','').replace('Open ',''));
-  const data   = vv.map(visitaAvg);
-  const colors = data.map(v=>v===null?'#ccc':v>=80?'#8DC63F':v>=60?'#EF9F27':'#E24B4A');
-
-  svHistEvolChart = new Chart(ctx,{
-    type:'bar',
-    data:{
-      labels,
-      datasets:[{
-        label:'Cumplimiento %',
-        data,
-        backgroundColor:colors,
-        borderRadius:4,
-      }]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
-      scales:{
-        y:{min:0,max:100,ticks:{stepSize:20,callback:v=>v+'%'}},
-        x:{ticks:{font:{size:10},maxRotation:45}}
-      }
-    }
-  });
-}
-
-function populateSvHistSucSelect(svKey){
-  const sel = document.getElementById('sv-hist-suc-select');
-  if(!sel) return;
-  const sucVisitadas = [...new Set(svVisitas(svKey).map(v=>v.sucursal))].sort();
-  sel.innerHTML = '<option value="">Seleccioná una sucursal</option>';
-  sucVisitadas.forEach(s=>{ const o=document.createElement('option'); o.textContent=s; sel.appendChild(o); });
-}
-
-function renderSvHistSucursal(){
-  const suc   = document.getElementById('sv-hist-suc-select').value;
-  const empty = document.getElementById('sv-hist-suc-empty');
-  if(svHistSucChart){ svHistSucChart.destroy(); svHistSucChart=null; }
-  if(!suc){ if(empty) empty.style.display='none'; return; }
-
-  const vv = visitas.filter(v=>v.sucursal===suc).sort((a,b)=>a.fecha.localeCompare(b.fecha));
-  if(!vv.length){ if(empty) empty.style.display='block'; return; }
-  if(empty) empty.style.display='none';
-
-  const labels = vv.map(v=>fmtDate(v.fecha));
-  const data   = vv.map(visitaAvg);
-  const col    = '#8DC63F';
-
-  svHistSucChart = new Chart(document.getElementById('chart-sv-hist-suc'),{
-    type:'line',
-    data:{
-      labels,
-      datasets:[{label:suc, data, borderColor:col, backgroundColor:col+'33', tension:.3, pointRadius:5, fill:true}]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
-      scales:{y:{min:0,max:100,ticks:{stepSize:20,callback:v=>v+'%'}}}
-    }
-  });
-}
-
-// ── NAVEGACIÓN ─────────────────────────────────────────
+// ── NAVIGATION ─────────────────────────────────────────────
 function showPage(name, el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'));
   document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('show');
   if(el) el.classList.add('active');
-  document.getElementById('topbar-title').textContent = name==='gerencial'?'Vista gerencial':'Supervisor';
-  // Reset filter when switching to gerencial — show all sucursales
-  filtroSucursal='';
-  const sel=document.getElementById('filtro-sucursal'); if(sel) sel.value='';
-  const btn=document.getElementById('btn-clear-filter'); if(btn) btn.style.display='none';
-  const fb=document.getElementById('filter-bar'); if(fb) fb.style.display='none';
-  if(name==='gerencial') renderGerencial();
+  else document.getElementById('nav-'+name)?.classList.add('active');
+  document.getElementById('topbar-title').textContent='Vista gerencial';
+  renderGerencial();
 }
 
 function showSvPage(svKey, el){
@@ -1852,200 +1000,69 @@ function showSvPage(svKey, el){
   document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
   document.getElementById('page-supervisor').classList.add('show');
   if(el) el.classList.add('active');
-  // Reset filter when switching supervisor
-  filtroSucursal='';
-  const sel=document.getElementById('filtro-sucursal'); if(sel) sel.value='';
-  const btn=document.getElementById('btn-clear-filter'); if(btn) btn.style.display='none';
-  currentSv = svKey;
-  document.getElementById('topbar-title').textContent = SV_NAMES[svKey];
-  const fb=document.getElementById('filter-bar'); if(fb) fb.style.display='flex';
+  else document.getElementById('nav-'+svKey)?.classList.add('active');
+  currentSv=svKey;
+  document.getElementById('topbar-title').textContent=SV_NAMES[svKey];
   renderSvPage(svKey);
 }
 
-// ── IMPORT ─────────────────────────────────────────────
+// ── PENDIENTES ─────────────────────────────────────────────
+async function marcarResuelto(id, svKey){
+  const hoy=new Date().toISOString().split('T')[0];
+  try {
+    const res=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'resolverPendiente',id,resuelto_por:currentUser.nombre,fecha_resolucion:hoy}),redirect:'follow'});
+    const text=await res.text();
+    const data=JSON.parse(text);
+    if(data.status==='ok'){
+      const p=allPendientes.find(p=>String(p.id)===String(id));
+      if(p){ p.estado='Resuelto'; p.resuelto_por=currentUser.nombre; p.fecha_resolucion=hoy; }
+      renderSvPage(svKey);
+    }
+  } catch(e){ console.warn('Error resolver:',e); }
+}
+
+// ── IMPORT MANUAL ──────────────────────────────────────────
 function openImport(){ document.getElementById('modal-import').classList.add('show'); }
-function closeImport(){ document.getElementById('modal-import').classList.remove('show'); document.getElementById('import-text').value=''; document.getElementById('import-feedback').className='import-feedback'; }
+function closeImport(){ document.getElementById('modal-import').classList.remove('show'); document.getElementById('import-text').value=''; document.getElementById('import-msg').className='import-msg'; }
 
 function parseChecklist(text){
-  const get = (label) => { const m=text.match(new RegExp(label+':\\s*(.+)')); return m?m[1].trim():null; };
-  const sv   = get('Supervisor');
-  const suc  = get('Sucursal');
-  const fecha= get('Fecha');
+  const get=label=>{ const m=text.match(new RegExp(label+'[:\\s]+(.+)')); return m?m[1].trim():null; };
+  const sv=get('Supervisor'), suc=get('Sucursal'), fecha=get('Fecha');
   if(!sv||!suc||!fecha) return null;
-
-  const svKey = Object.entries(SV_NAMES).find(([k,n])=>n===sv)?.[0];
+  const svKey=Object.entries(SV_NAMES).find(([k,n])=>n===sv)?.[0];
   if(!svKey) return null;
-
-  const parseSection = (label) => {
-    const re = new RegExp(label+'[\\s\\S]*?(?:Promedio: ([\\d.]+))?\\n([\\s\\S]*?)(?=───|$)');
-    const m = text.match(re);
-    if(!m) return null;
-    const items = [...m[0].matchAll(/•\s+(.+?):\s+([^\n]+)/g)];
-    const vals = items.map(i=>{ const v=parseFloat(i[2]); return isNaN(v)?null:v; }).filter(v=>v!==null);
-    return vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length*10)/10 : null;
-  };
-
-  const secciones = {
-    s1:  parseSection('IMAGEN EXTERIOR'),
-    s2:  parseSection('PERFUMERÍA MASIVA'),
-    s2b: parseSection('PERFUMERÍA SELECTIVA'),
-    s3:  parseSection('MOSTRADOR FARMACIA'),
-    s4:  parseSection('SECTOR CAJA'),
-    s4b: parseSection('OTROS SECTORES'),
-  };
-
-  const adminMatch = (label) => { const m=text.match(new RegExp('•\\s+'+label+':\\s+(\\S+)')); return m?m[1]:null; };
-  const admin = {Cajas:adminMatch('Cajas'),Depósitos:adminMatch('Depósitos'),Facturas:adminMatch('Facturas'),Recetas:adminMatch('Recetas')};
-
-  return {sv:svKey, sucursal:suc, fecha:fecha.replace(/\//g,'-').split('-').reverse().join('-'), secciones, obs:[], pendientes:[], admin};
+  const parseSection=label=>{ const re=new RegExp(label+'[\\s\\S]*?(?:Promedio: ([\\d.]+))?\\n([\\s\\S]*?)(?=─|$)'); const m=text.match(re); if(!m) return null; const items=[...m[0].matchAll(/•\s+.+?:\s+([^\n]+)/g)]; const vals=items.map(i=>{const v=parseFloat(i[1]);return isNaN(v)?null:v;}).filter(v=>v!==null); return vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length*10)/10:null; };
+  return {sv:svKey,sucursal:suc,fecha:fecha.replace(/\//g,'-').split('-').reverse().join('-'),secciones:{s1:parseSection('IMAGEN EXTERIOR'),s2:parseSection('PERFUMERÍA MASIVA'),s2b:parseSection('PERFUMERÍA SELECTIVA'),s3:parseSection('MOSTRADOR'),s4:parseSection('SECTOR CAJA'),s4b:parseSection('OTROS SECTORES')},obs:[],pendientes:[],admin:{},puntos_positivos:''};
 }
 
 function processImport(){
-  const text = document.getElementById('import-text').value.trim();
-  const fb = document.getElementById('import-feedback');
-  if(!text){ fb.className='import-feedback import-err'; fb.textContent='Pegá el contenido del email primero.'; return; }
-
-  const parsed = parseChecklist(text);
-  if(!parsed){ fb.className='import-feedback import-err'; fb.textContent='No se pudo procesar el texto. Verificá que sea un email de checklist válido.'; return; }
-
-  const exists = visitas.findIndex(v=>v.sv===parsed.sv&&v.sucursal===parsed.sucursal&&v.fecha===parsed.fecha);
-  if(exists>=0) visitas.splice(exists,1);
-  visitas.push(parsed);
-  saveVisitas();
-
-  fb.className='import-feedback import-ok';
-  fb.textContent=`✓ Visita importada: ${parsed.sucursal} — ${SV_NAMES[parsed.sv]} — ${fmtDate(parsed.fecha)}`;
-
-  setTimeout(()=>{
-    closeImport();
-    const page = document.querySelector('.page.show');
-    if(page&&page.id==='page-supervisor'&&currentSv) renderSvPage(currentSv);
-    else renderGerencial();
-  }, 1500);
+  const text=document.getElementById('import-text').value.trim();
+  const msg=document.getElementById('import-msg');
+  if(!text){ msg.className='import-msg import-err'; msg.textContent='Pegá el contenido del email primero.'; return; }
+  const parsed=parseChecklist(text);
+  if(!parsed){ msg.className='import-msg import-err'; msg.textContent='No se pudo procesar. Verificá el formato del email.'; return; }
+  const idx=visitas.findIndex(v=>v.sv===parsed.sv&&v.sucursal===parsed.sucursal&&v.fecha===parsed.fecha);
+  if(idx>=0) visitas.splice(idx,1);
+  visitas.push(parsed); saveVisitas();
+  msg.className='import-msg import-ok'; msg.textContent=`✓ Importado: ${parsed.sucursal} — ${SV_NAMES[parsed.sv]}`;
+  setTimeout(()=>{ closeImport(); renderAll(); },1500);
 }
 
-function confirmClearData(){
-  const fb = document.getElementById('import-feedback');
-  if(confirm('¿Borrar TODAS las visitas guardadas y volver a los datos de ejemplo? Esta acción no se puede deshacer.')){
-    localStorage.removeItem(STORAGE_KEY);
-    visitas = JSON.parse(JSON.stringify(DEMO_VISITAS));
-    fb.className='import-feedback import-ok';
-    fb.textContent='Datos borrados. Se restauraron los datos de ejemplo.';
-    setTimeout(()=>{ closeImport(); renderGerencial(); }, 1500);
-  }
-}
-
-// ── GOOGLE SHEETS SYNC ─────────────────────────────────
-const SHEETS_ID = '16WlQI5KIBOHkuSazxcIxFLMINaJAtHhnp2ZETjXjFKI';
-const SHEETS_FETCH = `https://docs.google.com/spreadsheets/d/${SHEETS_ID}/gviz/tq?tqx=out:json&sheet=Sheet1`;
-
-function parseSheetsRow(row){
-  const c = row.c;
-  const val = (i) => (c[i]&&c[i].v!==null&&c[i].v!==undefined) ? c[i].v : null;
-  const num  = (i) => { const v=val(i); return v!==null&&v!==''?parseFloat(v)||null:null; };
-  const str  = (i) => {
-    const v=val(i);
-    if(v===null) return '';
-    // Handle Google Sheets Date object: Date(2026,5,17) — months 0-indexed
-    if(typeof v==='string' && v.startsWith('Date(')){
-      const parts=v.replace('Date(','').replace(')','').split(',');
-      const y=parts[0], m=String(parseInt(parts[1])+1).padStart(2,'0'), d=String(parts[2]).padStart(2,'0');
-      return `${y}-${m}-${d}`;
-    }
-    return String(v).trim();
-  };
-
-  // Columns: sv(0) supervisor(1) sucursal(2) fecha(3) encargado(4) encargado_presente(5) s1(6) s2(7) s2b(8) s3(9) s4(10) s4b(11) obs(12) pendientes(13) admin(14) puntos_positivos(15) seguimiento_pendientes(16)
-  const sv       = str(0);
-  const sucursal = str(2);
-  const fechaRaw = str(3);
-  if(!sv||!sucursal||!fechaRaw) return null;
-
-  // Normalize fecha to YYYY-MM-DD
-  let fecha = fechaRaw;
-  if(fecha.includes('/')) fecha = fecha.split('/').reverse().join('-');
-  fecha = fecha.replace(/\//g,'-');
-
-  const obsRaw = str(12);
-  const obs = obsRaw ? obsRaw.split(' | ').filter(Boolean) : [];
-
-  const pendRaw = str(13);
-  const pendientes = pendRaw ? pendRaw.split(' | ').filter(Boolean).map(t=>({texto:t,tag:'tag-trd'})) : [];
-
-  const adminRaw = str(14);
-  const admin = {};
-  if(adminRaw){ adminRaw.split(' | ').forEach(p=>{ const [k,v]=p.split(': '); if(k) admin[k.trim()]=v?.trim(); }); }
-
-  const ppRaw = str(15);
-
-  return {
-    sv, sucursal, fecha,
-    encargado: str(4),
-    encargado_presente: str(5),
-    secciones:{ s1:num(6), s2:num(7), s2b:num(8), s3:num(9), s4:num(10), s4b:num(11) },
-    obs, pendientes, admin,
-    puntos_positivos: ppRaw||'',
-    _fromSheets: true,
-  };
-}
-
-async function syncFromSheets(){
-  const btn = document.getElementById('btn-sync');
-  if(btn){ btn.textContent='Sincronizando...'; btn.disabled=true; }
-  try {
-    const res  = await fetch(SHEETS_FETCH);
-    const text = await res.text();
-    const json = JSON.parse(text.replace(/^[^(]+\(/, '').replace(/\);?$/, ''));
-    const rows = json.table.rows || [];
-    const todas = rows.map(parseSheetsRow).filter(Boolean);
-    // Also load pendientes
-    loadAllPendientes();
-
-    // Replace ALL data with what comes from Sheets — no merging with stale localStorage
-    if(todas.length > 0){
-      // Remove demo/old data, keep only Sheets data
-      visitas.length = 0;
-      todas.forEach(n => visitas.push(n));
-      saveVisitas();
-    }
-
-    const page = document.querySelector('.page.show');
-    if(page&&page.id==='page-supervisor'&&currentSv) renderSvPage(currentSv);
-    else renderGerencial();
-
-    if(btn){ btn.textContent='✓ Sincronizado'; setTimeout(()=>{ btn.textContent='↻ Sincronizar'; btn.disabled=false; },2000); }
-  } catch(e){
-    if(btn){ btn.textContent='↻ Sincronizar'; btn.disabled=false; }
-    console.warn('Sync error:', e);
-  }
-}
-
-// ── INIT ───────────────────────────────────────────────
-document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('es-AR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-
-// Add sync button to topbar
-const syncBtn = document.createElement('button');
-syncBtn.id = 'btn-sync';
-syncBtn.textContent = '↻ Sincronizar';
-syncBtn.className = 'btn-import';
-syncBtn.style.background = 'var(--blue)';
-syncBtn.onclick = syncFromSheets;
-document.querySelector('.topbar-right').prepend(syncBtn);
-
-// Check existing session
-const savedSession = loadSession();
+// ── INIT ───────────────────────────────────────────────────
+document.getElementById('topbar-date').textContent=new Date().toLocaleDateString('es-AR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+const savedSession=loadSession();
 if(savedSession){
-  currentUser = savedSession;
+  currentUser=savedSession;
   document.getElementById('login-overlay').classList.add('hide');
-  document.querySelector('.sb-user .uname').textContent = savedSession.nombre;
-  document.querySelector('.sb-user .urole').textContent = savedSession.rol==='gerencia'?'Gerencia — acceso total':'Supervisor';
+  document.getElementById('sb-user-name').textContent=savedSession.nombre;
+  document.getElementById('sb-user-role').textContent=savedSession.rol==='gerencia'?'Gerencia — acceso total':'Supervisor';
+  visitas=loadVisitas();
+  updateSidebarScores();
+  populateFiltroPeriodo();
   renderGerencial();
   syncFromSheets();
+  setInterval(()=>{ if(currentUser) syncFromSheets(); },5*60*1000);
 }
-// Hide clear filter button initially
-const btnClear = document.getElementById('btn-clear-filter');
-if(btnClear) btnClear.style.display='none';
-// If no session, login overlay stays visible
 </script>
 </body>
 </html>
