@@ -227,6 +227,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   .hero-grid{grid-template-columns:1fr 1fr}
   .sv-grid{grid-template-columns:1fr 1fr}
   .two-col,.three-col,.col-3-1{grid-template-columns:1fr}
+  .topbar{padding:10px 14px;gap:8px}
+  .topbar-title{font-size:14px}
+  .topbar-date,.last-sync{display:none}
+  .hero-val{font-size:28px}
+  .panel-lateral{width:100%;right:-100%}
+  .rank-sv{display:none}
+  .btn-checklist:last-child{display:none}
+}
+
+@media print {
+  .sidebar,.topbar,.panel-overlay,.panel-lateral,.modal-bg,.tab-bar{display:none!important}
+  .main{margin-left:0!important}
+  .hero-grid{grid-template-columns:repeat(4,1fr)!important}
+  .col-3-1{grid-template-columns:3fr 2fr!important}
+  .two-col{grid-template-columns:1fr 1fr!important}
+  .card{box-shadow:none!important;border:1px solid #ddd!important;break-inside:avoid}
+  body{background:#fff!important}
+  .content{padding:10px!important}
+  .sv-grid{grid-template-columns:repeat(4,1fr)!important}
+  .cobertura-grid{grid-template-columns:repeat(6,1fr)!important}
+  @page{margin:15mm;size:A4 landscape}
 }
 
 /* ── PANEL LATERAL ──────────────────────────────────────────── */
@@ -353,6 +374,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     </select>
     <button class="btn-sync" id="btn-sync" onclick="syncFromSheets()">↻ Sincronizar</button>
     <button class="btn-checklist" onclick="openImport()">+ Cargar checklist</button>
+    <button class="btn-checklist" onclick="exportPDF()" style="background:#4A5568">⬇ Exportar</button>
   </div>
 
   <div class="content">
@@ -751,6 +773,17 @@ function renderGerHero(vf){
   const pendTotal=vf.reduce((a,v)=>a+v.pendientes.length,0);
   const alertas=vf.filter(v=>{const s=visitaAvg(v);return s!==null&&s<META-20;}).length;
 
+  // Sucursales sin visitar hace más de 15 días
+  const hoy=new Date();
+  const sinVisitar15=Object.entries(SUCURSALES).flatMap(([svK,sucs])=>
+    sucs.filter(suc=>{
+      const vvSuc=visitas.filter(v=>v.sucursal===suc).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+      if(!vvSuc.length) return true;
+      const ultima=new Date(vvSuc[0].fecha);
+      return Math.floor((hoy-ultima)/86400000)>15;
+    })
+  );
+
   // Compare with previous period
   const prevVf=getPrevPeriodVisitas();
   const prevScores=prevVf.map(visitaAvg).filter(x=>x!==null);
@@ -776,10 +809,10 @@ function renderGerHero(vf){
       <div class="hero-val">${pendTotal}</div>
       <div class="hero-sub">${pendTotal>0?'requieren seguimiento':'sin pendientes 🎉'}</div>
     </div>
-    <div class="hero-card ${alertas>0?'rojo':'verde'}">
-      <div class="hero-label">Alertas críticas</div>
-      <div class="hero-val">${alertas}</div>
-      <div class="hero-sub">${alertas>0?`sucursales < ${META-20}%`:'todo en orden'}</div>
+    <div class="hero-card ${alertas>0?'rojo':sinVisitar15.length>0?'ambar':'verde'}">
+      <div class="hero-label">${alertas>0?'Alertas críticas':'Sin visitar +15 días'}</div>
+      <div class="hero-val" style="font-size:${alertas>0?'36':'30'}px">${alertas>0?alertas:sinVisitar15.length}</div>
+      <div class="hero-sub">${alertas>0?`sucursales < ${META-20}%`:sinVisitar15.length>0?`sucursales requieren visita`:'todo al día'}</div>
     </div>`;
   document.getElementById('ger-sv-sub').textContent=`${vf.length} visitas en el período seleccionado`;
 }
@@ -1316,7 +1349,19 @@ function processImport(){
   setTimeout(()=>{ closeImport(); renderAll(); },1500);
 }
 
-// ── INIT ───────────────────────────────────────────────────
+function exportPDF(){
+  // Close panel if open
+  closePanel();
+  // Set title for print
+  const prevTitle = document.title;
+  const periodo = document.getElementById('filtro-periodo');
+  const periodoText = periodo && periodo.options[periodo.selectedIndex] ? periodo.options[periodo.selectedIndex].text : 'Todos los períodos';
+  document.title = `Openfarma PDV — ${periodoText} — ${new Date().toLocaleDateString('es-AR')}`;
+  window.print();
+  document.title = prevTitle;
+}
+
+
 document.getElementById('topbar-date').textContent=new Date().toLocaleDateString('es-AR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 const savedSession=loadSession();
 if(savedSession){
