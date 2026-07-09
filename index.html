@@ -347,6 +347,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div class="topbar">
     <div class="topbar-title" id="topbar-title">Vista gerencial</div>
     <div class="topbar-date" id="topbar-date"></div>
+    <div id="last-sync" style="font-size:11px;color:var(--texto3);white-space:nowrap"></div>
     <select class="periodo-select" id="filtro-periodo" onchange="aplicarFiltroPeriodo()">
       <option value="">Todos los períodos</option>
     </select>
@@ -567,7 +568,18 @@ let evolChart = null;
 let svEvolChart = null;
 let cobTab = 'todas';
 
-// ── HELPERS ────────────────────────────────────────────────
+let lastSyncTime = null;
+
+function updateSyncIndicator(){
+  const el = document.getElementById('last-sync');
+  if(!el || !lastSyncTime) return;
+  const diff = Math.floor((new Date() - lastSyncTime) / 60000);
+  el.textContent = diff === 0 ? '● En vivo' : `● Actualizado hace ${diff} min`;
+  el.style.color = diff < 5 ? 'var(--verde)' : diff < 15 ? 'var(--ambar)' : 'var(--rojo)';
+}
+
+// Update sync indicator every minute
+setInterval(updateSyncIndicator, 60000);
 const avg = arr => { const v=arr.filter(x=>x!==null&&!isNaN(x)); return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length*10)/10:null; };
 const visitaAvg = v => { const s=SEC_KEYS.map(k=>v.secciones&&v.secciones[k]!==null?v.secciones[k]:null).filter(x=>x!==null); return s.length?Math.round(avg(s)*10)/10:null; };
 const svVisitas = k => visitas.filter(v=>v.sv===k).sort((a,b)=>b.fecha.localeCompare(a.fecha));
@@ -641,6 +653,9 @@ async function syncFromSheets(){
     renderAll();
     loadAllPendientes();
     if(btn){ btn.textContent='✓ Actualizado'; setTimeout(()=>{ btn.textContent='↻ Sincronizar'; btn.disabled=false; },2000); }
+    // Update last sync time
+    lastSyncTime = new Date();
+    updateSyncIndicator();
   } catch(e){
     if(btn){ btn.textContent='↻ Sincronizar'; btn.disabled=false; }
     console.warn('Sync error:',e);
@@ -1018,13 +1033,44 @@ function openPanel(suc, svKey){
     vvSuc.slice(0,5).forEach((v,i)=>{
       const s2 = visitaAvg(v);
       const col2 = scoreColor(s2);
+      // Compare with previous visit
+      const prev = vvSuc[i+1] ? visitaAvg(vvSuc[i+1]) : null;
+      const diff2 = s2!==null&&prev!==null ? Math.round(s2-prev) : null;
+      const trendStr = diff2===null?'':diff2>0?`<span style="color:var(--verde);font-size:10px;font-weight:700"> ↑+${diff2}%</span>`:diff2<0?`<span style="color:var(--rojo);font-size:10px;font-weight:700"> ↓${diff2}%</span>`:'';
       html += `<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #F7FAFC">
         <div style="width:8px;height:8px;border-radius:50%;background:${col2};flex-shrink:0"></div>
         <div style="flex:1;font-size:12px;color:var(--texto2)">${fmtDate(v.fecha)} · ${diasDesde(v.fecha)}</div>
-        <div style="font-size:13px;font-weight:700;color:${col2}">${s2!==null?s2+'%':'—'}</div>
+        <div style="font-size:13px;font-weight:700;color:${col2}">${s2!==null?s2+'%':'—'}${trendStr}</div>
       </div>`;
     });
     html += `</div>`;
+
+    // Comparison with previous visit
+    const prev = vvSuc[1];
+    const prevSc = visitaAvg(prev);
+    if(prevSc !== null && sc !== null){
+      const diffSc = Math.round(sc - prevSc);
+      const secDiffs = SEC_KEYS.map(k=>{
+        const curr = last.secciones[k];
+        const prevV = prev.secciones[k];
+        if(curr===null||prevV===null) return null;
+        return {label:SEC_LABELS[k], curr, prev:prevV, diff:Math.round(curr-prevV)};
+      }).filter(Boolean);
+      if(secDiffs.length){
+        html += `<div class="panel-section"><div class="panel-section-title">vs visita anterior — ${fmtDate(prev.fecha)}</div>`;
+        secDiffs.forEach(s=>{
+          const col3 = s.diff>0?'var(--verde)':s.diff<0?'var(--rojo)':'var(--texto3)';
+          const arrow = s.diff>0?'↑':s.diff<0?'↓':'→';
+          html += `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #F7FAFC;font-size:12px">
+            <div style="flex:1;color:var(--texto2)">${s.label}</div>
+            <div style="color:var(--texto3)">${s.prev}%</div>
+            <div style="color:${col3};font-weight:700;width:50px;text-align:center">${arrow} ${Math.abs(s.diff)}%</div>
+            <div style="color:var(--texto);font-weight:700;width:36px;text-align:right">${s.curr}%</div>
+          </div>`;
+        });
+        html += `</div>`;
+      }
+    }
   }
 
   document.getElementById('panel-body').innerHTML = html;
