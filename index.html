@@ -863,6 +863,11 @@ function renderGerHero(vf){
       <div class="hero-label">Cumplimiento promedio</div>
       <div class="hero-val">${avgAll!==null?avgAll+'%':'—'}</div>
       <div class="hero-sub">${diffAvg!==null?trendHtml(diffAvg)+' vs período anterior':'todas las visitas'}</div>
+      <div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">
+        <span style="font-size:9px;padding:1px 5px;border-radius:6px;background:var(--verde-light);color:var(--verde);font-weight:600">✓ 85-100</span>
+        <span style="font-size:9px;padding:1px 5px;border-radius:6px;background:var(--ambar-light);color:var(--ambar);font-weight:600">⚠ 50-84</span>
+        <span style="font-size:9px;padding:1px 5px;border-radius:6px;background:var(--rojo-light);color:var(--rojo);font-weight:600">✗ 0-49</span>
+      </div>
       <div class="meta-line"><div class="meta-fill" style="width:${metaPct}%"></div></div>
     </div>
     <div class="hero-card azul">
@@ -1083,6 +1088,11 @@ function openPanel(suc, svKey){
       <div class="panel-score-info">
         <div class="panel-score-label">Cumplimiento general</div>
         <div class="panel-score-sub">Meta: ${META}% · ${sc!==null&&sc>=META?'✓ Por encima de la meta':'⚠ Por debajo de la meta'}</div>
+        <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
+          <span style="font-size:10px;padding:2px 7px;border-radius:8px;background:var(--verde-light);color:var(--verde);font-weight:600">✓ Cumple: 85-100</span>
+          <span style="font-size:10px;padding:2px 7px;border-radius:8px;background:var(--ambar-light);color:var(--ambar);font-weight:600">⚠ Parcial: 50-84</span>
+          <span style="font-size:10px;padding:2px 7px;border-radius:8px;background:var(--rojo-light);color:var(--rojo);font-weight:600">✗ No cumple: 0-49</span>
+        </div>
         ${tendenciaPred!==null?`<div style="font-size:11px;margin-top:4px;font-weight:600;color:${tendenciaPred>0?'var(--verde)':tendenciaPred<0?'var(--rojo)':'var(--texto3)'}">
           Tendencia: ${tendenciaPred>0?'↑ Mejorando':tendenciaPred<0?'↓ Deteriorando':'→ Estable'} (${tendenciaPred>0?'+':''}${tendenciaPred}% por visita)
         </div>`:''}
